@@ -1,7 +1,12 @@
 import { format, parseISO } from "date-fns"
 import { zhCN } from "date-fns/locale"
 
-import { getDaysUntil } from "@/lib/date"
+import {
+  APP_TIME_ZONE,
+  getDaysUntil,
+  getTodayInTimeZone,
+  isValidTimeValue,
+} from "@/lib/date"
 import type { DDL, DDLFilter } from "@/types/ddl"
 
 export type DDLTimeState =
@@ -17,24 +22,81 @@ export interface DDLTimeInfo {
   state: DDLTimeState
 }
 
-export function clampProgress(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0
-  }
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000
+const HOUR_IN_MILLISECONDS = 60 * 60 * 1000
+const MINUTE_IN_MILLISECONDS = 60 * 1000
 
-  return Math.min(100, Math.max(0, Math.round(value)))
+function getDeadlineInstant(
+  deadline: string,
+  deadlineTime?: string
+): Date {
+  const normalizedTime =
+    deadlineTime && isValidTimeValue(deadlineTime)
+      ? `${deadlineTime}:00`
+      : "23:59:59"
+  return new Date(`${deadline}T${normalizedTime}+08:00`)
 }
 
-export function getDDLTimeInfo(ddl: DDL, today: Date): DDLTimeInfo {
+function formatElapsedTime(milliseconds: number, prefix: string): string {
+  if (milliseconds < HOUR_IN_MILLISECONDS) {
+    const minutes = Math.max(
+      1,
+      Math.ceil(milliseconds / MINUTE_IN_MILLISECONDS)
+    )
+    return `${prefix} ${minutes} 分钟`
+  }
+
+  if (milliseconds < DAY_IN_MILLISECONDS) {
+    const hours = Math.ceil(milliseconds / HOUR_IN_MILLISECONDS)
+    return `${prefix} ${hours} 小时`
+  }
+
+  const days = Math.ceil(milliseconds / DAY_IN_MILLISECONDS)
+  return `${prefix} ${days} 天`
+}
+
+export function getDDLTimeInfo(
+  ddl: DDL,
+  now: Date
+): DDLTimeInfo {
+  const today = getTodayInTimeZone(APP_TIME_ZONE, now)
+  const daysRemaining = getDaysUntil(ddl.deadline, today)
+
   if (ddl.completed) {
     return {
-      daysRemaining: getDaysUntil(ddl.deadline, today),
+      daysRemaining,
       label: "已完成",
       state: "completed",
     }
   }
 
-  const daysRemaining = getDaysUntil(ddl.deadline, today)
+  if (ddl.deadlineTime) {
+    const millisecondsRemaining =
+      getDeadlineInstant(ddl.deadline, ddl.deadlineTime).getTime() -
+      now.getTime()
+
+    if (millisecondsRemaining <= 0) {
+      return {
+        daysRemaining,
+        label: formatElapsedTime(
+          Math.abs(millisecondsRemaining),
+          "已逾期"
+        ),
+        state: "overdue",
+      }
+    }
+
+    return {
+      daysRemaining,
+      label: formatElapsedTime(millisecondsRemaining, "剩余"),
+      state:
+        daysRemaining <= 0
+          ? "today"
+          : millisecondsRemaining <= 3 * DAY_IN_MILLISECONDS
+            ? "due-soon"
+            : "upcoming",
+    }
+  }
 
   if (daysRemaining < 0) {
     return {
@@ -62,9 +124,9 @@ export function getDDLTimeInfo(ddl: DDL, today: Date): DDLTimeInfo {
 export function matchesDDLFilter(
   ddl: DDL,
   filter: DDLFilter,
-  today: Date
+  now: Date
 ): boolean {
-  const timeInfo = getDDLTimeInfo(ddl, today)
+  const timeInfo = getDDLTimeInfo(ddl, now)
 
   switch (filter) {
     case "active":
@@ -83,12 +145,23 @@ export function matchesDDLFilter(
 export function sortDDLsByDeadline(ddls: DDL[]): DDL[] {
   return [...ddls].sort((first, second) => {
     const deadlineComparison = first.deadline.localeCompare(second.deadline)
+    const timeComparison = (first.deadlineTime ?? "23:59").localeCompare(
+      second.deadlineTime ?? "23:59"
+    )
     return (
-      deadlineComparison || first.title.localeCompare(second.title, "zh-CN")
+      deadlineComparison ||
+      timeComparison ||
+      first.title.localeCompare(second.title, "zh-CN")
     )
   })
 }
 
-export function formatDDLDeadline(deadline: string): string {
-  return format(parseISO(deadline), "yyyy年M月d日", { locale: zhCN })
+export function formatDDLDeadline(
+  deadline: string,
+  deadlineTime?: string
+): string {
+  const dateLabel = format(parseISO(deadline), "yyyy年M月d日", {
+    locale: zhCN,
+  })
+  return deadlineTime ? `${dateLabel} ${deadlineTime}` : dateLabel
 }

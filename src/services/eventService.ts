@@ -9,7 +9,7 @@ import type {
 } from "@/types/event"
 
 const EVENT_COLUMNS =
-  "id, user_id, title, date, start_time, end_time, category_id, description, note_type, created_at, updated_at"
+  "id, user_id, title, date, start_time, end_time, category_id, description, note_type, note_completed, created_at, updated_at"
 
 function toEventRowInput(input: CreateEventInput) {
   return {
@@ -20,6 +20,7 @@ function toEventRowInput(input: CreateEventInput) {
     category_id: input.categoryId,
     description: input.description ?? null,
     note_type: input.noteType,
+    note_completed: input.noteCompleted,
   }
 }
 
@@ -119,5 +120,34 @@ export async function deleteEvent(eventId: string): Promise<void> {
     }
   } catch (error) {
     throw normalizeDataError(error, "删除日程失败。")
+  }
+}
+
+export async function setEventNoteCompleted(
+  eventId: string,
+  completed: boolean
+): Promise<Event> {
+  try {
+    const { client, userId } = await requireAuthenticatedUser()
+    const { data, error } = await client
+      .from("events")
+      .update({ note_completed: completed })
+      .eq("id", eventId)
+      .eq("user_id", userId)
+      .eq("note_type", "todo")
+      .select(EVENT_COLUMNS)
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    if (!data) {
+      throw new DataOperationError("待办备注不存在或无权访问。")
+    }
+
+    return mapEventRow(data as EventRow)
+  } catch (error) {
+    throw normalizeDataError(error, "更新待办备注失败。")
   }
 }

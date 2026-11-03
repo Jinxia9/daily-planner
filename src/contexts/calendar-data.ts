@@ -29,10 +29,17 @@ export interface CalendarDataContextValue {
   ) => Promise<void>
   createEvent: (input: CreateEventInput) => Promise<Event>
   updateEvent: (eventId: string, input: UpdateEventInput) => Promise<Event>
+  setEventNoteCompleted: (
+    eventId: string,
+    completed: boolean
+  ) => Promise<Event>
   deleteEvent: (eventId: string) => Promise<void>
   createDDL: (input: DDLInput) => Promise<DDL>
   updateDDL: (ddlId: string, input: DDLInput) => Promise<DDL>
-  updateDDLProgress: (ddlId: string, progress: number) => Promise<DDL>
+  setDDLNoteCompleted: (
+    ddlId: string,
+    completed: boolean
+  ) => Promise<DDL>
   setDDLCompleted: (ddlId: string, completed: boolean) => Promise<DDL>
   deleteDDL: (ddlId: string) => Promise<void>
 }

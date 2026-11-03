@@ -6,7 +6,6 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
-import { DDLProgressControl } from "@/components/ddl/DDLProgressControl"
 import { NoteContent } from "@/components/notes/NoteContent"
 import {
   AlertDialog,
@@ -30,13 +29,11 @@ import {
 import {
   Card,
   CardAction,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Spinner } from "@/components/ui/spinner"
 import {
   formatDDLDeadline,
@@ -50,8 +47,11 @@ interface DDLTaskCardProps {
   ddl: DDL
   onDelete: (ddlId: string) => Promise<void>
   onEdit: (ddl: DDL) => void
-  onProgressChange: (ddlId: string, progress: number) => Promise<DDL>
   onToggleCompleted: (ddlId: string, completed: boolean) => Promise<DDL>
+  onToggleNoteCompleted: (
+    ddlId: string,
+    completed: boolean
+  ) => Promise<DDL>
   timeInfo: DDLTimeInfo
 }
 
@@ -74,37 +74,17 @@ export function DDLTaskCard({
   ddl,
   onDelete,
   onEdit,
-  onProgressChange,
   onToggleCompleted,
+  onToggleNoteCompleted,
   timeInfo,
 }: DDLTaskCardProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
-  const [draftProgress, setDraftProgress] = useState<number | null>(null)
+  const [isUpdatingNote, setIsUpdatingNote] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [updateError, setUpdateError] = useState<string | null>(null)
   const statusBadge = getStatusBadge(timeInfo)
-  const showTimeDetail =
-    timeInfo.state !== "completed" && timeInfo.state !== "today"
-
-  async function handleProgressCommit(progress: number) {
-    setUpdateError(null)
-    setIsUpdating(true)
-
-    try {
-      await onProgressChange(ddl.id, progress)
-      setDraftProgress(null)
-    } catch (error) {
-      setDraftProgress(null)
-      setUpdateError(
-        normalizeDataError(error, "更新进度失败。").message
-      )
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
   async function handleToggleCompleted() {
     setUpdateError(null)
     setIsUpdating(true)
@@ -117,6 +97,21 @@ export function DDLTaskCard({
       )
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  async function handleToggleNoteCompleted(completed: boolean) {
+    setUpdateError(null)
+    setIsUpdatingNote(true)
+
+    try {
+      await onToggleNoteCompleted(ddl.id, completed)
+    } catch (error) {
+      setUpdateError(
+        normalizeDataError(error, "更新待办备注失败。").message
+      )
+    } finally {
+      setIsUpdatingNote(false)
     }
   }
 
@@ -140,69 +135,51 @@ export function DDLTaskCard({
     <Card data-ddl-id={ddl.id}>
       <CardHeader>
         <CardDescription className="font-mono text-[10px] tracking-[0.06em]">
-          截止 {formatDDLDeadline(ddl.deadline)}
+          截止 {formatDDLDeadline(ddl.deadline, ddl.deadlineTime)}
         </CardDescription>
         <CardTitle className="text-base tracking-[-0.02em] sm:text-lg">
           {ddl.title}
         </CardTitle>
         {ddl.description && (
-          <div className="text-sm">
+          <div className="col-span-2 text-sm">
             <NoteContent
+              completed={ddl.noteCompleted}
               description={ddl.description}
+              isUpdating={isUpdatingNote}
               noteType={ddl.noteType}
+              onToggleCompleted={(completed) => {
+                void handleToggleNoteCompleted(completed)
+              }}
             />
           </div>
         )}
-        <CardAction>
+        <CardAction className="flex flex-col items-end gap-2 text-right">
           <Badge variant={statusBadge.variant}>
             {statusBadge.label}
           </Badge>
-        </CardAction>
-        {showTimeDetail && (
           <p
+            data-ddl-time-label
             className={cn(
-              "font-mono text-[10px]",
+              "whitespace-nowrap text-xl leading-tight font-medium tracking-[-0.03em] sm:text-2xl",
               timeInfo.state === "overdue"
                 ? "text-destructive"
-                : timeInfo.state === "due-soon"
+                : timeInfo.state === "due-soon" ||
+                    timeInfo.state === "today"
                   ? "text-status-warning"
                   : "text-muted-foreground"
             )}
           >
             {timeInfo.label}
           </p>
-        )}
+        </CardAction>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-4">
-        <div>
-          <div className="mb-2 flex items-center justify-between font-mono text-[10px] tracking-[0.06em] text-muted-foreground">
-            <span>任务完成进度</span>
-            <span className="text-foreground">{ddl.progress}%</span>
-          </div>
-          <Progress
-            value={ddl.progress}
-            aria-label={`${ddl.title} 完成进度 ${ddl.progress}%`}
-            className="gap-0"
-          />
-        </div>
-
-        <DDLProgressControl
-          label="调整完成进度"
-          value={draftProgress ?? ddl.progress}
-          disabled={ddl.completed || isUpdating}
-          onValueChange={setDraftProgress}
-          onValueCommit={(progress) => {
-            void handleProgressCommit(progress)
-          }}
-        />
-        {updateError && (
-          <Alert variant="destructive">
-            <AlertTitle>更新失败</AlertTitle>
-            <AlertDescription>{updateError}</AlertDescription>
-          </Alert>
-        )}
-      </CardContent>
+      {updateError && (
+        <Alert variant="destructive" className="mx-4">
+          <AlertTitle>更新失败</AlertTitle>
+          <AlertDescription>{updateError}</AlertDescription>
+        </Alert>
+      )}
 
       <CardFooter className="flex flex-wrap gap-2">
         <Button
@@ -228,6 +205,7 @@ export function DDLTaskCard({
           variant="outline"
           size="sm"
           onClick={() => onEdit(ddl)}
+          disabled={isDeleting || isUpdatingNote}
         >
           <Pencil data-icon="inline-start" />
           编辑
@@ -256,7 +234,7 @@ export function DDLTaskCard({
               </AlertDialogMedia>
               <AlertDialogTitle>删除这个 DDL？</AlertDialogTitle>
               <AlertDialogDescription>
-                “{ddl.title}”及其完成进度将被永久删除。
+                “{ddl.title}”及其截止信息将被永久删除。
               </AlertDialogDescription>
             </AlertDialogHeader>
             {deleteError && (

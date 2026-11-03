@@ -31,6 +31,7 @@ import {
 import { getEventTimeLabel } from "@/lib/events"
 import { normalizeDataError } from "@/lib/errors"
 import { usePreferences } from "@/hooks/usePreferences"
+import { useCalendarData } from "@/hooks/useCalendarData"
 import { cn } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import type { Event } from "@/types/event"
@@ -49,9 +50,12 @@ export function EventDetail({
   onEdit,
 }: EventDetailProps) {
   const { preferences } = usePreferences()
+  const { setEventNoteCompleted } = useCalendarData()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isUpdatingNote, setIsUpdatingNote] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [noteError, setNoteError] = useState<string | null>(null)
 
   async function handleDelete() {
     setDeleteError(null)
@@ -66,6 +70,21 @@ export function EventDetail({
       )
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  async function handleNoteToggle(completed: boolean) {
+    setNoteError(null)
+    setIsUpdatingNote(true)
+
+    try {
+      await setEventNoteCompleted(event.id, completed)
+    } catch (error) {
+      setNoteError(
+        normalizeDataError(error, "更新待办备注失败。").message
+      )
+    } finally {
+      setIsUpdatingNote(false)
     }
   }
 
@@ -100,9 +119,17 @@ export function EventDetail({
           <dt className="text-muted-foreground">备注</dt>
           <dd>
             <NoteContent
+              completed={event.noteCompleted}
               description={event.description}
+              isUpdating={isUpdatingNote}
               noteType={event.noteType}
+              onToggleCompleted={(completed) => {
+                void handleNoteToggle(completed)
+              }}
             />
+            {noteError && (
+              <p className="mt-2 text-xs text-destructive">{noteError}</p>
+            )}
           </dd>
         </div>
       </dl>

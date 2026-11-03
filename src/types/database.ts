@@ -19,6 +19,7 @@ export interface EventRow {
   category_id: string
   description: string | null
   note_type: NoteType
+  note_completed: boolean
   created_at: string
   updated_at: string
 }
@@ -28,9 +29,10 @@ export interface DDLRow {
   user_id: string
   title: string
   deadline: string
-  progress: number
+  deadline_time: string | null
   description: string | null
   note_type: NoteType
+  note_completed: boolean
   completed: boolean
   created_at: string
   updated_at: string

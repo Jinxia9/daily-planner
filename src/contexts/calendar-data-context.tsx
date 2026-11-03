@@ -23,13 +23,14 @@ import {
   deleteDDL as deleteDDLRequest,
   listDDLs,
   setDDLCompleted as setDDLCompletedRequest,
+  setDDLNoteCompleted as setDDLNoteCompletedRequest,
   updateDDL as updateDDLRequest,
-  updateDDLProgress as updateDDLProgressRequest,
 } from "@/services/ddlService"
 import {
   createEvent as createEventRequest,
   deleteEvent as deleteEventRequest,
   listEvents,
+  setEventNoteCompleted as setEventNoteCompletedRequest,
   updateEvent as updateEventRequest,
 } from "@/services/eventService"
 import type {
@@ -275,6 +276,25 @@ export function CalendarDataProvider({
     [recordMutationError]
   )
 
+  const setEventNoteCompleted = useCallback(
+    async (eventId: string, completed: boolean) => {
+      setMutationError(null)
+      try {
+        const event = await setEventNoteCompletedRequest(
+          eventId,
+          completed
+        )
+        setEvents((current) =>
+          current.map((item) => (item.id === event.id ? event : item))
+        )
+        return event
+      } catch (error) {
+        throw recordMutationError(error)
+      }
+    },
+    [recordMutationError]
+  )
+
   const createDDL = useCallback(
     async (input: DDLInput) => {
       setMutationError(null)
@@ -305,11 +325,11 @@ export function CalendarDataProvider({
     [recordMutationError]
   )
 
-  const updateDDLProgress = useCallback(
-    async (ddlId: string, progress: number) => {
+  const setDDLNoteCompleted = useCallback(
+    async (ddlId: string, completed: boolean) => {
       setMutationError(null)
       try {
-        const ddl = await updateDDLProgressRequest(ddlId, progress)
+        const ddl = await setDDLNoteCompletedRequest(ddlId, completed)
         setDDLs((current) =>
           current.map((item) => (item.id === ddl.id ? ddl : item))
         )
@@ -374,10 +394,11 @@ export function CalendarDataProvider({
       deleteCategory,
       createEvent,
       updateEvent,
+      setEventNoteCompleted,
       deleteEvent,
       createDDL,
       updateDDL,
-      updateDDLProgress,
+      setDDLNoteCompleted,
       setDDLCompleted,
       deleteDDL,
     }),
@@ -398,10 +419,11 @@ export function CalendarDataProvider({
       deleteCategory,
       createEvent,
       updateEvent,
+      setEventNoteCompleted,
       deleteEvent,
       createDDL,
       updateDDL,
-      updateDDLProgress,
+      setDDLNoteCompleted,
       setDDLCompleted,
       deleteDDL,
     ]

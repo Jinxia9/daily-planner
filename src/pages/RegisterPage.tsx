@@ -90,7 +90,7 @@ export function RegisterPage() {
   return (
     <AuthShell
       title="注册"
-      description="创建账户后，日程和进度会同步到其他设备。"
+      description="创建账户后，日程和 DDL 会同步到其他设备。"
     >
       {!isConfigured && <ConfigurationAlert />}
 

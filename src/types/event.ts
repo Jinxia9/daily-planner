@@ -9,6 +9,7 @@ export interface Event {
   categoryId: string
   description?: string
   noteType: NoteType
+  noteCompleted: boolean
   createdAt: string
   updatedAt: string
 }

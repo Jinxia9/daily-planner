@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/empty"
 import { useCalendarData } from "@/hooks/useCalendarData"
 import { useCurrentDate } from "@/hooks/useCurrentDate"
+import { useCurrentDateTime } from "@/hooks/useCurrentDateTime"
 import {
   getDDLTimeInfo,
   matchesDDLFilter,
@@ -43,11 +44,12 @@ export function DDLPage() {
     ddls,
     createDDL,
     updateDDL,
-    updateDDLProgress,
+    setDDLNoteCompleted,
     setDDLCompleted,
     deleteDDL,
   } = useCalendarData()
   const today = useCurrentDate()
+  const now = useCurrentDateTime()
   const [filter, setFilter] = useState<DDLFilter>("all")
   const [editingDDL, setEditingDDL] = useState<DDL | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
@@ -55,9 +57,9 @@ export function DDLPage() {
   const visibleDDLs = useMemo(
     () =>
       sortDDLsByDeadline(
-        ddls.filter((ddl) => matchesDDLFilter(ddl, filter, today))
+        ddls.filter((ddl) => matchesDDLFilter(ddl, filter, now))
       ),
-    [ddls, filter, today]
+    [ddls, filter, now]
   )
   const defaultDeadline = formatDateKey(today)
 
@@ -143,10 +145,10 @@ export function DDLPage() {
                 <DDLTaskCard
                   key={ddl.id}
                   ddl={ddl}
-                  timeInfo={getDDLTimeInfo(ddl, today)}
+                  timeInfo={getDDLTimeInfo(ddl, now)}
                   onDelete={deleteDDL}
                   onEdit={openEditDialog}
-                  onProgressChange={updateDDLProgress}
+                  onToggleNoteCompleted={setDDLNoteCompleted}
                   onToggleCompleted={setDDLCompleted}
                 />
               ))}
@@ -154,7 +156,7 @@ export function DDLPage() {
           )}
         </section>
 
-        <DDLStatusPanel ddls={ddls} today={today} />
+        <DDLStatusPanel ddls={ddls} now={now} />
       </div>
 
       <DDLDialog

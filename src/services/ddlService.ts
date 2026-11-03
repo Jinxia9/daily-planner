@@ -1,20 +1,20 @@
 import { DataOperationError, normalizeDataError } from "@/lib/errors"
 import { mapDDLRow } from "@/lib/dataMappers"
-import { clampProgress } from "@/lib/ddl"
 import { requireAuthenticatedUser } from "@/lib/supabase"
 import type { DDLRow } from "@/types/database"
 import type { DDL, DDLInput } from "@/types/ddl"
 
 const DDL_COLUMNS =
-  "id, user_id, title, deadline, progress, description, note_type, completed, created_at, updated_at"
+  "id, user_id, title, deadline, deadline_time, description, note_type, note_completed, completed, created_at, updated_at"
 
 function toDDLRowInput(input: DDLInput) {
   return {
     title: input.title.trim(),
     deadline: input.deadline,
-    progress: clampProgress(input.progress),
+    deadline_time: input.deadlineTime ?? null,
     description: input.description ?? null,
     note_type: input.noteType,
+    note_completed: input.noteCompleted,
   }
 }
 
@@ -92,64 +92,15 @@ export async function updateDDL(
   }
 }
 
-export async function updateDDLProgress(
-  ddlId: string,
-  progress: number
-): Promise<DDL> {
-  try {
-    const { client, userId } = await requireAuthenticatedUser()
-    const { data, error } = await client
-      .from("ddls")
-      .update({ progress: clampProgress(progress) })
-      .eq("id", ddlId)
-      .eq("user_id", userId)
-      .eq("completed", false)
-      .select(DDL_COLUMNS)
-      .single()
-
-    if (error) {
-      throw error
-    }
-
-    if (!data) {
-      throw new DataOperationError("DDL 不存在或已完成。")
-    }
-
-    return mapDDLRow(data as DDLRow)
-  } catch (error) {
-    throw normalizeDataError(error, "更新 DDL 进度失败。")
-  }
-}
-
 export async function setDDLCompleted(
   ddlId: string,
   completed: boolean
 ): Promise<DDL> {
   try {
     const { client, userId } = await requireAuthenticatedUser()
-    const { data: currentDDL, error: readError } = await client
-      .from("ddls")
-      .select("progress")
-      .eq("id", ddlId)
-      .eq("user_id", userId)
-      .single()
-
-    if (readError) {
-      throw readError
-    }
-
-    const currentProgress = (currentDDL as { progress: number }).progress
-    const nextProgress = completed
-      ? 100
-      : currentProgress >= 100
-        ? 99
-        : currentProgress
     const { data, error } = await client
       .from("ddls")
-      .update({
-        completed,
-        progress: nextProgress,
-      })
+      .update({ completed })
       .eq("id", ddlId)
       .eq("user_id", userId)
       .select(DDL_COLUMNS)
@@ -166,6 +117,35 @@ export async function setDDLCompleted(
     return mapDDLRow(data as DDLRow)
   } catch (error) {
     throw normalizeDataError(error, "更新 DDL 完成状态失败。")
+  }
+}
+
+export async function setDDLNoteCompleted(
+  ddlId: string,
+  completed: boolean
+): Promise<DDL> {
+  try {
+    const { client, userId } = await requireAuthenticatedUser()
+    const { data, error } = await client
+      .from("ddls")
+      .update({ note_completed: completed })
+      .eq("id", ddlId)
+      .eq("user_id", userId)
+      .eq("note_type", "todo")
+      .select(DDL_COLUMNS)
+      .single()
+
+    if (error) {
+      throw error
+    }
+
+    if (!data) {
+      throw new DataOperationError("待办备注不存在或无权访问。")
+    }
+
+    return mapDDLRow(data as DDLRow)
+  } catch (error) {
+    throw normalizeDataError(error, "更新待办备注失败。")
   }
 }
 

@@ -1,7 +1,6 @@
 import { Plus, Save } from "lucide-react"
 import { useId, useState, type FormEvent } from "react"
 
-import { DDLProgressControl } from "@/components/ddl/DDLProgressControl"
 import { NoteTypeSelector } from "@/components/notes/NoteTypeSelector"
 import { Button } from "@/components/ui/button"
 import {
@@ -12,7 +11,6 @@ import {
 import { DialogFooter } from "@/components/ui/dialog"
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -20,9 +18,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
-import { clampProgress } from "@/lib/ddl"
 import { normalizeDataError } from "@/lib/errors"
-import { isValidDateKey } from "@/lib/date"
+import { isValidDateKey, isValidTimeValue } from "@/lib/date"
 import { getNotePlaceholder } from "@/lib/notes"
 import type { DDL, DDLInput } from "@/types/ddl"
 import type { NoteType } from "@/types/note"
@@ -37,6 +34,7 @@ interface DDLFormProps {
 interface DDLFormErrors {
   title?: string
   deadline?: string
+  deadlineTime?: string
 }
 
 export function DDLForm({
@@ -50,18 +48,21 @@ export function DDLForm({
   const [deadline, setDeadline] = useState(
     ddl?.deadline ?? defaultDeadline
   )
-  const [progress, setProgress] = useState(ddl?.progress ?? 0)
+  const [deadlineTime, setDeadlineTime] = useState(
+    ddl?.deadlineTime ?? ""
+  )
   const [description, setDescription] = useState(
     ddl?.description ?? ""
   )
   const [noteType, setNoteType] = useState<NoteType>(
     ddl?.noteType ?? "text"
   )
+  const [noteCompleted, setNoteCompleted] = useState(
+    ddl?.noteCompleted ?? false
+  )
   const [errors, setErrors] = useState<DDLFormErrors>({})
   const [isSaving, setIsSaving] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const progressDisabled = ddl?.completed ?? false
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const normalizedTitle = title.trim()
@@ -73,6 +74,10 @@ export function DDLForm({
 
     if (!isValidDateKey(deadline)) {
       nextErrors.deadline = "请选择有效截止日期。"
+    }
+
+    if (deadlineTime && !isValidTimeValue(deadlineTime)) {
+      nextErrors.deadlineTime = "请选择有效的截止时间。"
     }
 
     if (Object.keys(nextErrors).length > 0) {
@@ -87,9 +92,10 @@ export function DDLForm({
       await onSubmit({
         title: normalizedTitle,
         deadline,
-        progress: clampProgress(progress),
+        deadlineTime: deadlineTime || undefined,
         description: description.trim() || undefined,
         noteType,
+        noteCompleted,
       })
     } catch (error) {
       setSubmitError(
@@ -121,47 +127,62 @@ export function DDLForm({
           {errors.title && <FieldError>{errors.title}</FieldError>}
         </Field>
 
-        <Field data-invalid={Boolean(errors.deadline)}>
-          <FieldLabel htmlFor={`${id}-deadline`}>截止日期</FieldLabel>
-          <Input
-            id={`${id}-deadline`}
-            type="date"
-            value={deadline}
-            onChange={(event) => {
-              setDeadline(event.target.value)
-              setErrors((current) => ({
-                ...current,
-                deadline: undefined,
-              }))
-            }}
-            aria-invalid={Boolean(errors.deadline)}
-            aria-required="true"
-          />
-          {errors.deadline && (
-            <FieldError>{errors.deadline}</FieldError>
-          )}
-        </Field>
+        <FieldGroup className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem]">
+          <Field data-invalid={Boolean(errors.deadline)}>
+            <FieldLabel htmlFor={`${id}-deadline`}>截止日期</FieldLabel>
+            <Input
+              id={`${id}-deadline`}
+              type="date"
+              value={deadline}
+              onChange={(event) => {
+                setDeadline(event.target.value)
+                setErrors((current) => ({
+                  ...current,
+                  deadline: undefined,
+                }))
+              }}
+              aria-invalid={Boolean(errors.deadline)}
+              aria-required="true"
+            />
+            {errors.deadline && (
+              <FieldError>{errors.deadline}</FieldError>
+            )}
+          </Field>
 
-        <Field>
-          <DDLProgressControl
-            label="完成进度"
-            value={progress}
-            disabled={progressDisabled}
-            onValueChange={setProgress}
-          />
-          <FieldDescription>
-            这是任务完成进度，不代表时间已经过去多少。
-            {progressDisabled
-              ? " 重新开启任务后可以继续调整。"
-              : ""}
-          </FieldDescription>
-        </Field>
+          <Field data-invalid={Boolean(errors.deadlineTime)}>
+            <FieldLabel htmlFor={`${id}-deadline-time`}>
+              截止时间（可选）
+            </FieldLabel>
+            <Input
+              id={`${id}-deadline-time`}
+              type="time"
+              step={60}
+              value={deadlineTime}
+              onChange={(event) => {
+                setDeadlineTime(event.target.value)
+                setErrors((current) => ({
+                  ...current,
+                  deadlineTime: undefined,
+                }))
+              }}
+              aria-invalid={Boolean(errors.deadlineTime)}
+            />
+            {errors.deadlineTime && (
+              <FieldError>{errors.deadlineTime}</FieldError>
+            )}
+          </Field>
+        </FieldGroup>
 
         <Field>
           <FieldLabel htmlFor={`${id}-description`}>备注</FieldLabel>
           <NoteTypeSelector
             value={noteType}
-            onValueChange={setNoteType}
+            onValueChange={(nextType) => {
+              setNoteType(nextType)
+              if (nextType !== "todo") {
+                setNoteCompleted(false)
+              }
+            }}
           />
           <Textarea
             id={`${id}-description`}

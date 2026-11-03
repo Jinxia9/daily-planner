@@ -20,7 +20,7 @@ import type { DDL } from "@/types/ddl"
 
 interface DDLStatusPanelProps {
   ddls: DDL[]
-  today: Date
+  now: Date
 }
 
 const STATUS_ICONS = {
@@ -30,10 +30,10 @@ const STATUS_ICONS = {
   completed: CheckCircle2,
 }
 
-export function DDLStatusPanel({ ddls, today }: DDLStatusPanelProps) {
+export function DDLStatusPanel({ ddls, now }: DDLStatusPanelProps) {
   const counts = ddls.reduce(
     (result, ddl) => {
-      const timeInfo = getDDLTimeInfo(ddl, today)
+      const timeInfo = getDDLTimeInfo(ddl, now)
 
       if (ddl.completed) {
         result.completed += 1
@@ -107,7 +107,7 @@ export function DDLStatusPanel({ ddls, today }: DDLStatusPanelProps) {
       </CardContent>
 
       <CardFooter className="text-xs leading-relaxed text-muted-foreground">
-        完成进度按任务投入计算，不会随时间自动增加。数据会同步到当前账户的 Supabase 云端。
+        DDL 状态会随截止日期和可选截止时间自动更新，数据同步到当前账户的 Supabase 云端。
       </CardFooter>
     </Card>
   )

@@ -75,6 +75,9 @@ export function EventForm({
   const [noteType, setNoteType] = useState<NoteType>(
     event?.noteType ?? "text"
   )
+  const [noteCompleted, setNoteCompleted] = useState(
+    event?.noteCompleted ?? false
+  )
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSaving, setIsSaving] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -144,6 +147,7 @@ export function EventForm({
         categoryId,
         description: description.trim() || undefined,
         noteType,
+        noteCompleted,
       })
     } catch (error) {
       setSubmitError(
@@ -274,7 +278,12 @@ export function EventForm({
           <FieldLabel htmlFor={`${id}-description`}>备注</FieldLabel>
           <NoteTypeSelector
             value={noteType}
-            onValueChange={setNoteType}
+            onValueChange={(nextType) => {
+              setNoteType(nextType)
+              if (nextType !== "todo") {
+                setNoteCompleted(false)
+              }
+            }}
           />
           <Textarea
             id={`${id}-description`}

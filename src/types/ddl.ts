@@ -4,9 +4,10 @@ export interface DDL {
   id: string
   title: string
   deadline: string
-  progress: number
+  deadlineTime?: string
   description?: string
   noteType: NoteType
+  noteCompleted: boolean
   completed: boolean
   createdAt: string
   updatedAt: string
@@ -15,9 +16,10 @@ export interface DDL {
 export interface DDLInput {
   title: string
   deadline: string
-  progress: number
+  deadlineTime?: string
   description?: string
   noteType: NoteType
+  noteCompleted: boolean
 }
 
 export type DDLFilter =

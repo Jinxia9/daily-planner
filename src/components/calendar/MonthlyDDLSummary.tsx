@@ -21,8 +21,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { Progress } from "@/components/ui/progress"
 import { useCalendarData } from "@/hooks/useCalendarData"
+import { useCurrentDateTime } from "@/hooks/useCurrentDateTime"
+import {
+  APP_TIME_ZONE,
+  getTodayInTimeZone,
+} from "@/lib/date"
 import {
   formatDDLDeadline,
   getDDLTimeInfo,
@@ -32,14 +36,14 @@ import { cn } from "@/lib/utils"
 
 interface MonthlyDDLSummaryProps {
   month: Date
-  today: Date
 }
 
 export function MonthlyDDLSummary({
   month,
-  today,
 }: MonthlyDDLSummaryProps) {
   const { ddls } = useCalendarData()
+  const now = useCurrentDateTime()
+  const today = getTodayInTimeZone(APP_TIME_ZONE, now)
   const monthlyDDLs = useMemo(
     () =>
       sortDDLsByDeadline(
@@ -79,7 +83,7 @@ export function MonthlyDDLSummary({
         ) : (
           <ol className="flex flex-col">
             {monthlyDDLs.map((ddl, index) => {
-              const timeInfo = getDDLTimeInfo(ddl, today)
+              const timeInfo = getDDLTimeInfo(ddl, now)
               return (
                 <li
                   key={ddl.id}
@@ -97,12 +101,16 @@ export function MonthlyDDLSummary({
                         {ddl.title}
                       </p>
                       <p className="mt-1 text-[11px] text-muted-foreground">
-                        {formatDDLDeadline(ddl.deadline)}
+                        {formatDDLDeadline(
+                          ddl.deadline,
+                          ddl.deadlineTime
+                        )}
                       </p>
                     </div>
                     <span
+                      data-monthly-ddl-time-label
                       className={cn(
-                        "shrink-0 text-right font-mono text-[9px]",
+                        "shrink-0 text-right text-xl leading-tight font-medium tracking-[-0.03em] whitespace-nowrap sm:text-2xl",
                         timeInfo.state === "overdue"
                           ? "text-destructive"
                           : timeInfo.state === "due-soon" ||
@@ -112,16 +120,6 @@ export function MonthlyDDLSummary({
                       )}
                     >
                       {timeInfo.label}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Progress
-                      value={ddl.progress}
-                      aria-label={`${ddl.title} 完成进度 ${ddl.progress}%`}
-                      className="min-w-0 flex-1 gap-0"
-                    />
-                    <span className="w-8 text-right font-mono text-[9px] text-muted-foreground">
-                      {ddl.progress}%
                     </span>
                   </div>
                 </li>

@@ -210,7 +210,7 @@ export function CalendarPage() {
             onQuickAdd={openCreateDialog}
             onSelectEvent={openEventDetail}
           />
-          <MonthlyDDLSummary month={visibleMonth} today={today} />
+          <MonthlyDDLSummary month={visibleMonth} />
         </div>
       </div>
 

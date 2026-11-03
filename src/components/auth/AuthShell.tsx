@@ -31,7 +31,7 @@ export function AuthShell({
             留一点余地。
           </h1>
           <p className="mt-6 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-            月历、日程分类和 DDL 进度使用同一个账户同步，在不同设备上继续保持自己的节奏。
+            月历、日程分类和 DDL 使用同一个账户同步，在不同设备上继续保持自己的节奏。
           </p>
         </div>
         <p className="font-mono text-[10px] tracking-[0.04em] text-muted-foreground">
