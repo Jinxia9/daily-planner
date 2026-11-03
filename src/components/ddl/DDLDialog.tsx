@@ -5,9 +5,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { DDLForm } from "@/components/ddl/DDLForm"
+import type { Category } from "@/types/category"
 import type { DDL, DDLInput } from "@/types/ddl"
 
 interface DDLDialogProps {
+  categories: Category[]
   ddl?: DDL
   defaultDeadline: string
   onOpenChange: (open: boolean) => void
@@ -16,6 +18,7 @@ interface DDLDialogProps {
 }
 
 export function DDLDialog({
+  categories,
   ddl,
   defaultDeadline,
   onOpenChange,
@@ -30,6 +33,7 @@ export function DDLDialog({
         </DialogHeader>
         <DDLForm
           key={ddl ? `${ddl.id}-${ddl.updatedAt}` : "new-ddl"}
+          categories={categories}
           ddl={ddl}
           defaultDeadline={defaultDeadline}
           onCancel={() => onOpenChange(false)}

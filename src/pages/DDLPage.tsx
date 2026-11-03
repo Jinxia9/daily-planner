@@ -1,6 +1,7 @@
 import { CalendarX2, Plus } from "lucide-react"
 import { useMemo, useState } from "react"
 
+import { CategoryFilter } from "@/components/calendar/CategoryFilter"
 import { DDLDialog } from "@/components/ddl/DDLDialog"
 import { DDLFilterBar } from "@/components/ddl/DDLFilterBar"
 import { DDLStatusPanel } from "@/components/ddl/DDLStatusPanel"
@@ -8,6 +9,7 @@ import { DDLTaskCard } from "@/components/ddl/DDLTaskCard"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import {
   Empty,
   EmptyContent,
@@ -41,6 +43,8 @@ const FILTER_LABELS: Record<DDLFilter, string> = {
 
 export function DDLPage() {
   const {
+    categories,
+    categoryById,
     ddls,
     createDDL,
     updateDDL,
@@ -51,19 +55,34 @@ export function DDLPage() {
   const today = useCurrentDate()
   const now = useCurrentDateTime()
   const [filter, setFilter] = useState<DDLFilter>("all")
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
+    []
+  )
   const [editingDDL, setEditingDDL] = useState<DDL | null>(null)
   const [isEditorOpen, setIsEditorOpen] = useState(false)
 
   const visibleDDLs = useMemo(
     () =>
       sortDDLsByDeadline(
-        ddls.filter((ddl) => matchesDDLFilter(ddl, filter, now))
+        ddls
+          .filter((ddl) => matchesDDLFilter(ddl, filter, now))
+          .filter(
+            (ddl) =>
+              selectedCategoryIds.length === 0 ||
+              (ddl.categoryId !== undefined &&
+                selectedCategoryIds.includes(ddl.categoryId))
+          )
       ),
-    [ddls, filter, now]
+    [ddls, filter, now, selectedCategoryIds]
   )
   const defaultDeadline = formatDateKey(today)
+  const canCreateDDL = categories.length > 0
 
   function openCreateDialog() {
+    if (!canCreateDDL) {
+      return
+    }
+
     setEditingDDL(null)
     setIsEditorOpen(true)
   }
@@ -90,7 +109,12 @@ export function DDLPage() {
         path="/ddl"
         title="DDL 倒计时"
         actions={
-          <Button size="sm" onClick={openCreateDialog}>
+          <Button
+            size="sm"
+            onClick={openCreateDialog}
+            disabled={!canCreateDDL}
+            title={canCreateDDL ? undefined : "请先在设置中创建分类"}
+          >
             <Plus data-icon="inline-start" />
             新增 DDL
           </Button>
@@ -101,7 +125,15 @@ export function DDLPage() {
         <section aria-labelledby="ddl-list-title" className="min-w-0">
           <Card size="sm" className="gap-0 py-4">
             <CardContent>
-              <DDLFilterBar value={filter} onValueChange={setFilter} />
+              <div className="flex flex-col gap-4">
+                <DDLFilterBar value={filter} onValueChange={setFilter} />
+                <Separator />
+                <CategoryFilter
+                  categories={categories}
+                  selectedCategoryIds={selectedCategoryIds}
+                  onValueChange={setSelectedCategoryIds}
+                />
+              </div>
             </CardContent>
           </Card>
 
@@ -133,7 +165,11 @@ export function DDLPage() {
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Button size="sm" onClick={openCreateDialog}>
+                <Button
+                  size="sm"
+                  onClick={openCreateDialog}
+                  disabled={!canCreateDDL}
+                >
                   <Plus data-icon="inline-start" />
                   新增 DDL
                 </Button>
@@ -144,6 +180,11 @@ export function DDLPage() {
               {visibleDDLs.map((ddl) => (
                 <DDLTaskCard
                   key={ddl.id}
+                  category={
+                    ddl.categoryId
+                      ? categoryById.get(ddl.categoryId)
+                      : undefined
+                  }
                   ddl={ddl}
                   timeInfo={getDDLTimeInfo(ddl, now)}
                   onDelete={deleteDDL}
@@ -160,6 +201,7 @@ export function DDLPage() {
       </div>
 
       <DDLDialog
+        categories={categories}
         open={isEditorOpen}
         ddl={editingDDL ?? undefined}
         defaultDeadline={defaultDeadline}

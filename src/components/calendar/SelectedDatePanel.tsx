@@ -1,6 +1,7 @@
 import { CalendarPlus, Plus } from "lucide-react"
 import { isSameDay } from "date-fns"
 
+import { CalendarDDLItem } from "@/components/calendar/CalendarDDLItem"
 import { EventList } from "@/components/events/EventList"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -29,11 +30,13 @@ import {
 } from "@/lib/date"
 import { cn } from "@/lib/utils"
 import type { Category } from "@/types/category"
+import type { DDL } from "@/types/ddl"
 import type { Event } from "@/types/event"
 
 interface SelectedDatePanelProps {
   canAddEvent: boolean
   categoryById: Map<string, Category>
+  ddls: DDL[]
   events: Event[]
   onQuickAdd: () => void
   onSelectEvent: (event: Event) => void
@@ -44,6 +47,7 @@ interface SelectedDatePanelProps {
 export function SelectedDatePanel({
   canAddEvent,
   categoryById,
+  ddls,
   events,
   onQuickAdd,
   onSelectEvent,
@@ -51,6 +55,7 @@ export function SelectedDatePanel({
   today,
 }: SelectedDatePanelProps) {
   const isToday = isSameDay(selectedDate, today)
+  const totalItems = events.length + ddls.length
 
   return (
     <Card
@@ -64,7 +69,7 @@ export function SelectedDatePanel({
         <CardTitle>{formatMonthDay(selectedDate)}</CardTitle>
         <CardAction>
           <Badge variant="outline">
-            {isToday ? "今天" : `${events.length} 项`}
+            {isToday ? "今天" : `${totalItems} 项`}
           </Badge>
         </CardAction>
       </CardHeader>
@@ -91,7 +96,7 @@ export function SelectedDatePanel({
           </span>
         </div>
 
-        {events.length === 0 ? (
+        {totalItems === 0 ? (
           <Empty className="border border-dashed bg-muted/20 px-4 py-6">
             <EmptyHeader>
               <EmptyMedia variant="icon">
@@ -115,15 +120,39 @@ export function SelectedDatePanel({
             </EmptyContent>
           </Empty>
         ) : (
-          <EventList
-            categoryById={categoryById}
-            events={events}
-            onSelectEvent={onSelectEvent}
-          />
+          <div className="flex flex-col gap-5">
+            {events.length > 0 && (
+              <EventList
+                categoryById={categoryById}
+                events={events}
+                onSelectEvent={onSelectEvent}
+              />
+            )}
+            {ddls.length > 0 && (
+              <div className="border-t pt-4">
+                <p className="mb-1 font-mono text-[10px] tracking-[0.06em] text-muted-foreground">
+                  /DDL
+                </p>
+                <div className="flex flex-col">
+                  {ddls.map((ddl) => (
+                    <CalendarDDLItem
+                      key={ddl.id}
+                      ddl={ddl}
+                      category={
+                        ddl.categoryId
+                          ? categoryById.get(ddl.categoryId)
+                          : undefined
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </CardContent>
 
-      {events.length > 0 && (
+      {totalItems > 0 && (
         <CardFooter>
           <Button
             size="sm"

@@ -37,6 +37,7 @@ import type { Category } from "@/types/category"
 
 interface CategoryDeleteDialogProps {
   category: Category
+  ddlCount: number
   eventCount: number
   onConfirm: (replacementCategoryId?: string) => Promise<void>
   onOpenChange: (open: boolean) => void
@@ -45,6 +46,7 @@ interface CategoryDeleteDialogProps {
 
 export function CategoryDeleteDialog({
   category,
+  ddlCount,
   eventCount,
   onConfirm,
   onOpenChange,
@@ -56,11 +58,12 @@ export function CategoryDeleteDialog({
   >(otherCategories[0]?.id ?? null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
-  const hasReferencedEvents = eventCount > 0
+  const referenceCount = eventCount + ddlCount
+  const hasReferences = referenceCount > 0
   const needsReplacement =
-    hasReferencedEvents && otherCategories.length > 0
+    hasReferences && otherCategories.length > 0
   const canDelete =
-    !hasReferencedEvents ||
+    !hasReferences ||
     (needsReplacement && replacementCategoryId !== null)
   const items = otherCategories.map((item) => ({
     label: item.name,
@@ -96,14 +99,14 @@ export function CategoryDeleteDialog({
         </AlertDialogHeader>
 
         <div className="flex flex-col gap-4">
-          {hasReferencedEvents && (
+          {hasReferences && (
             <Alert>
               <AlertTriangle aria-hidden="true" />
               <AlertTitle>
-                该分类下有 {eventCount} 条日程
+                该分类下有 {eventCount} 条日程、{ddlCount} 个 DDL
               </AlertTitle>
               <AlertDescription>
-                请先将这些日程移动到其他分类，避免出现无效分类引用。
+                请先将这些内容移动到其他分类，避免出现无效分类引用。
               </AlertDescription>
             </Alert>
           )}
@@ -145,7 +148,7 @@ export function CategoryDeleteDialog({
             </FieldGroup>
           )}
 
-          {hasReferencedEvents && otherCategories.length === 0 && (
+          {hasReferences && otherCategories.length === 0 && (
             <Alert>
               <AlertTriangle aria-hidden="true" />
               <AlertTitle>没有可迁移到的分类</AlertTitle>

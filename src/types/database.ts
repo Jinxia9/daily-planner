@@ -30,6 +30,7 @@ export interface DDLRow {
   title: string
   deadline: string
   deadline_time: string | null
+  category_id: string | null
   description: string | null
   note_type: NoteType
   note_completed: boolean

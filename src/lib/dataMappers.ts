@@ -44,6 +44,7 @@ export function mapDDLRow(row: DDLRow): DDL {
     title: row.title,
     deadline: row.deadline,
     deadlineTime: formatPostgresTime(row.deadline_time),
+    categoryId: row.category_id ?? undefined,
     description: row.description ?? undefined,
     noteType: isNoteType(row.note_type) ? row.note_type : "text",
     noteCompleted: row.note_completed,

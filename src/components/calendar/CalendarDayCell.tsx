@@ -3,8 +3,10 @@ import { format, isSameDay, isSameMonth, isWeekend } from "date-fns"
 import { formatLongDate } from "@/lib/date"
 import { cn } from "@/lib/utils"
 import type { Category } from "@/types/category"
+import type { DDL } from "@/types/ddl"
 import type { Event } from "@/types/event"
 
+import { CalendarDDLChip } from "./CalendarDDLChip"
 import { CalendarEventChip } from "./CalendarEventChip"
 
 interface CalendarDayCellProps {
@@ -12,6 +14,7 @@ interface CalendarDayCellProps {
   month: Date
   categoryById: Map<string, Category>
   dayEvents: Event[]
+  dayDDLs: DDL[]
   selectedDate: Date
   today: Date
   onSelectDate: (date: Date) => void
@@ -22,6 +25,7 @@ export function CalendarDayCell({
   month,
   categoryById,
   dayEvents,
+  dayDDLs,
   selectedDate,
   today,
   onSelectDate,
@@ -29,6 +33,22 @@ export function CalendarDayCell({
   const isToday = isSameDay(date, today)
   const isSelected = isSameDay(date, selectedDate)
   const isCurrentMonth = isSameMonth(date, month)
+  const mobileEvents = dayEvents.slice(0, dayEvents.length > 0 ? 1 : 0)
+  const mobileDDLs = dayDDLs.slice(
+    0,
+    mobileEvents.length > 0 ? 1 : 2
+  )
+  const desktopEvents = dayEvents.slice(
+    0,
+    dayEvents.length > 0 ? 1 : 0
+  )
+  const desktopDDLs = dayDDLs.slice(
+    0,
+    desktopEvents.length > 0 ? 1 : 2
+  )
+  const mobileShown = mobileEvents.length + mobileDDLs.length
+  const desktopShown = desktopEvents.length + desktopDDLs.length
+  const totalItems = dayEvents.length + dayDDLs.length
 
   return (
     <td className="min-w-0 border-r border-b align-top last:border-r-0">
@@ -83,7 +103,7 @@ export function CalendarDayCell({
 
         <span className="mt-auto flex min-w-0 flex-col gap-0.5 pt-2">
           <span className="flex min-w-0 flex-col gap-0.5 md:hidden">
-            {dayEvents.slice(0, 1).map((event) => (
+            {mobileEvents.map((event) => (
               <CalendarEventChip
                 key={event.id}
                 event={event}
@@ -91,15 +111,27 @@ export function CalendarDayCell({
                 className="px-0.5 text-[8px]"
               />
             ))}
-            {dayEvents.length > 1 && (
+            {mobileDDLs.map((ddl) => (
+              <CalendarDDLChip
+                key={ddl.id}
+                ddl={ddl}
+                category={
+                  ddl.categoryId
+                    ? categoryById.get(ddl.categoryId)
+                    : undefined
+                }
+                className="px-0.5 text-[8px]"
+              />
+            ))}
+            {totalItems > mobileShown && (
               <span className="pl-0.5 font-mono text-[8px] text-muted-foreground">
-                +{dayEvents.length - 1}
+                +{totalItems - mobileShown}
               </span>
             )}
           </span>
 
           <span className="hidden min-w-0 flex-col gap-1 md:flex">
-            {dayEvents.slice(0, 2).map((event) => (
+            {desktopEvents.map((event) => (
               <CalendarEventChip
                 key={event.id}
                 event={event}
@@ -107,9 +139,21 @@ export function CalendarDayCell({
                 className="px-1.5 py-1 text-[10px] text-muted-foreground"
               />
             ))}
-            {dayEvents.length > 2 && (
+            {desktopDDLs.map((ddl) => (
+              <CalendarDDLChip
+                key={ddl.id}
+                ddl={ddl}
+                category={
+                  ddl.categoryId
+                    ? categoryById.get(ddl.categoryId)
+                    : undefined
+                }
+                className="px-1.5 py-1 text-[10px] text-muted-foreground"
+              />
+            ))}
+            {totalItems > desktopShown && (
               <span className="px-1.5 font-mono text-[9px] text-muted-foreground">
-                还有 {dayEvents.length - 2} 项
+                还有 {totalItems - desktopShown} 项
               </span>
             )}
           </span>

@@ -223,7 +223,7 @@ try {
       user_id: userA.id,
       title: `RLS DDL ${suffix}`,
       deadline: new Date().toISOString().slice(0, 10),
-      progress: 10,
+      category_id: categoryId,
     })
     .select("id")
     .single()
@@ -264,6 +264,21 @@ try {
       progress: 0,
     })
   assert(Boolean(forgedDDLOwnerError), "User B can insert a DDL as User A")
+
+  if (categoriesB?.[0]) {
+    const { error: crossDDLCategoryError } = await clientB
+      .from("ddls")
+      .insert({
+        user_id: userB.id,
+        title: `Cross-category DDL ${suffix}`,
+        deadline: new Date().toISOString().slice(0, 10),
+        category_id: created.categoryId,
+      })
+    assert(
+      Boolean(crossDDLCategoryError),
+      "User B can reference User A's category from a DDL"
+    )
+  }
 
   const { data: eventDeletedByB } = await clientB
     .from("events")

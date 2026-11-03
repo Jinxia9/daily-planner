@@ -5,6 +5,7 @@ export interface DDL {
   title: string
   deadline: string
   deadlineTime?: string
+  categoryId?: string
   description?: string
   noteType: NoteType
   noteCompleted: boolean
@@ -17,6 +18,7 @@ export interface DDLInput {
   title: string
   deadline: string
   deadlineTime?: string
+  categoryId?: string
   description?: string
   noteType: NoteType
   noteCompleted: boolean

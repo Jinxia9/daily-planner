@@ -21,8 +21,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { useCalendarData } from "@/hooks/useCalendarData"
 import { useCurrentDateTime } from "@/hooks/useCurrentDateTime"
+import { ACCENT_BACKGROUND } from "@/lib/accent"
 import {
   APP_TIME_ZONE,
   getTodayInTimeZone,
@@ -33,15 +33,20 @@ import {
   sortDDLsByDeadline,
 } from "@/lib/ddl"
 import { cn } from "@/lib/utils"
+import type { Category } from "@/types/category"
+import type { DDL } from "@/types/ddl"
 
 interface MonthlyDDLSummaryProps {
+  categoryById: Map<string, Category>
+  ddls: DDL[]
   month: Date
 }
 
 export function MonthlyDDLSummary({
+  categoryById,
+  ddls,
   month,
 }: MonthlyDDLSummaryProps) {
-  const { ddls } = useCalendarData()
   const now = useCurrentDateTime()
   const today = getTodayInTimeZone(APP_TIME_ZONE, now)
   const monthlyDDLs = useMemo(
@@ -84,6 +89,9 @@ export function MonthlyDDLSummary({
           <ol className="flex flex-col">
             {monthlyDDLs.map((ddl, index) => {
               const timeInfo = getDDLTimeInfo(ddl, now)
+              const category = ddl.categoryId
+                ? categoryById.get(ddl.categoryId)
+                : undefined
               return (
                 <li
                   key={ddl.id}
@@ -97,20 +105,33 @@ export function MonthlyDDLSummary({
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
+                      <p
+                        data-monthly-ddl-title
+                        className="truncate text-sm font-medium"
+                      >
                         {ddl.title}
                       </p>
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {formatDDLDeadline(
-                          ddl.deadline,
-                          ddl.deadlineTime
-                        )}
+                      <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "size-1.5 shrink-0 rounded-full",
+                            ACCENT_BACKGROUND[category?.color ?? "red"]
+                          )}
+                        />
+                        <span className="truncate">
+                          {category?.name ?? "未分类"} ·{" "}
+                          {formatDDLDeadline(
+                            ddl.deadline,
+                            ddl.deadlineTime
+                          )}
+                        </span>
                       </p>
                     </div>
                     <span
                       data-monthly-ddl-time-label
                       className={cn(
-                        "shrink-0 text-right text-xl leading-tight font-medium tracking-[-0.03em] whitespace-nowrap sm:text-2xl",
+                        "shrink-0 text-right text-sm leading-snug font-medium whitespace-nowrap",
                         timeInfo.state === "overdue"
                           ? "text-destructive"
                           : timeInfo.state === "due-soon" ||

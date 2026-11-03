@@ -17,6 +17,10 @@ import { PageHeader } from "@/components/layout/PageHeader"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useCalendarData } from "@/hooks/useCalendarData"
 import { useCurrentDate } from "@/hooks/useCurrentDate"
+import {
+  getDDLsForDate,
+  groupDDLsByDate,
+} from "@/lib/ddl"
 import { getDateInMonthClamped } from "@/lib/date"
 import { getEventsForDate, groupEventsByDate } from "@/lib/events"
 import type { CreateEventInput, Event } from "@/types/event"
@@ -31,6 +35,7 @@ export function CalendarPage() {
     categories,
     categoryById,
     events,
+    ddls,
     createEvent,
     updateEvent,
     deleteEvent,
@@ -59,7 +64,23 @@ export function CalendarPage() {
     () => groupEventsByDate(filteredEvents),
     [filteredEvents]
   )
+  const filteredDDLs = useMemo(
+    () =>
+      selectedCategoryIds.length === 0
+        ? ddls
+        : ddls.filter(
+            (ddl) =>
+              ddl.categoryId !== undefined &&
+              selectedCategoryIds.includes(ddl.categoryId)
+          ),
+    [ddls, selectedCategoryIds]
+  )
+  const ddlsByDate = useMemo(
+    () => groupDDLsByDate(filteredDDLs),
+    [filteredDDLs]
+  )
   const selectedDateEvents = getEventsForDate(eventsByDate, selectedDate)
+  const selectedDateDDLs = getDDLsForDate(ddlsByDate, selectedDate)
   const detailEvent =
     (detailEventId
       ? events.find((event) => event.id === detailEventId)
@@ -189,6 +210,7 @@ export function CalendarPage() {
         <CalendarPanel
           categoryById={categoryById}
           categories={categories}
+          ddlsByDate={ddlsByDate}
           eventsByDate={eventsByDate}
           month={visibleMonth}
           selectedCategoryIds={selectedCategoryIds}
@@ -204,13 +226,18 @@ export function CalendarPage() {
           <SelectedDatePanel
             canAddEvent={canCreateEvent}
             categoryById={categoryById}
+            ddls={selectedDateDDLs}
             events={selectedDateEvents}
             selectedDate={selectedDate}
             today={today}
             onQuickAdd={openCreateDialog}
             onSelectEvent={openEventDetail}
           />
-          <MonthlyDDLSummary month={visibleMonth} />
+          <MonthlyDDLSummary
+            categoryById={categoryById}
+            ddls={filteredDDLs}
+            month={visibleMonth}
+          />
         </div>
       </div>
 

@@ -13,11 +13,13 @@ import { CategoryFilter } from "@/components/calendar/CategoryFilter"
 import { formatMonthTitle, getCalendarDays } from "@/lib/date"
 import { usePreferences } from "@/hooks/usePreferences"
 import type { Category } from "@/types/category"
+import type { DDL } from "@/types/ddl"
 import type { Event } from "@/types/event"
 
 interface CalendarPanelProps {
   categoryById: Map<string, Category>
   categories: Category[]
+  ddlsByDate: Map<string, DDL[]>
   eventsByDate: Map<string, Event[]>
   month: Date
   selectedDate: Date
@@ -33,6 +35,7 @@ interface CalendarPanelProps {
 export function CalendarPanel({
   categoryById,
   categories,
+  ddlsByDate,
   eventsByDate,
   month,
   selectedDate,
@@ -109,6 +112,7 @@ export function CalendarPanel({
         </div>
         <CalendarGrid
           days={days}
+          ddlsByDate={ddlsByDate}
           month={month}
           categoryById={categoryById}
           eventsByDate={eventsByDate}

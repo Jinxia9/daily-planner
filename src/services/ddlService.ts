@@ -5,13 +5,14 @@ import type { DDLRow } from "@/types/database"
 import type { DDL, DDLInput } from "@/types/ddl"
 
 const DDL_COLUMNS =
-  "id, user_id, title, deadline, deadline_time, description, note_type, note_completed, completed, created_at, updated_at"
+  "id, user_id, title, deadline, deadline_time, category_id, description, note_type, note_completed, completed, created_at, updated_at"
 
 function toDDLRowInput(input: DDLInput) {
   return {
     title: input.title.trim(),
     deadline: input.deadline,
     deadline_time: input.deadlineTime ?? null,
+    category_id: input.categoryId ?? null,
     description: input.description ?? null,
     note_type: input.noteType,
     note_completed: input.noteCompleted,

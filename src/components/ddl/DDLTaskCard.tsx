@@ -39,11 +39,14 @@ import {
   formatDDLDeadline,
   type DDLTimeInfo,
 } from "@/lib/ddl"
+import { ACCENT_BACKGROUND } from "@/lib/accent"
 import { cn } from "@/lib/utils"
 import { normalizeDataError } from "@/lib/errors"
+import type { Category } from "@/types/category"
 import type { DDL } from "@/types/ddl"
 
 interface DDLTaskCardProps {
+  category?: Category
   ddl: DDL
   onDelete: (ddlId: string) => Promise<void>
   onEdit: (ddl: DDL) => void
@@ -71,6 +74,7 @@ function getStatusBadge(timeInfo: DDLTimeInfo) {
 }
 
 export function DDLTaskCard({
+  category,
   ddl,
   onDelete,
   onEdit,
@@ -134,10 +138,24 @@ export function DDLTaskCard({
   return (
     <Card data-ddl-id={ddl.id}>
       <CardHeader>
-        <CardDescription className="font-mono text-[10px] tracking-[0.06em]">
-          截止 {formatDDLDeadline(ddl.deadline, ddl.deadlineTime)}
+        <CardDescription className="flex flex-wrap items-center gap-1.5 font-mono text-[10px] tracking-[0.06em]">
+          <span>
+            截止 {formatDDLDeadline(ddl.deadline, ddl.deadlineTime)}
+          </span>
+          <span aria-hidden="true">·</span>
+          <span
+            aria-hidden="true"
+            className={cn(
+              "size-1.5 rounded-full",
+              ACCENT_BACKGROUND[category?.color ?? "red"]
+            )}
+          />
+          <span>{category?.name ?? "未分类"}</span>
         </CardDescription>
-        <CardTitle className="text-base tracking-[-0.02em] sm:text-lg">
+        <CardTitle
+          data-ddl-title
+          className="text-base tracking-[-0.02em] sm:text-lg"
+        >
           {ddl.title}
         </CardTitle>
         {ddl.description && (
@@ -160,7 +178,7 @@ export function DDLTaskCard({
           <p
             data-ddl-time-label
             className={cn(
-              "whitespace-nowrap text-xl leading-tight font-medium tracking-[-0.03em] sm:text-2xl",
+              "whitespace-nowrap text-base leading-snug font-medium tracking-[-0.02em] sm:text-lg",
               timeInfo.state === "overdue"
                 ? "text-destructive"
                 : timeInfo.state === "due-soon" ||

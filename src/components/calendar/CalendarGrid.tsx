@@ -7,12 +7,14 @@ import {
 } from "@/lib/date"
 import { getEventsForDate } from "@/lib/events"
 import type { Category } from "@/types/category"
+import type { DDL } from "@/types/ddl"
 import type { Event } from "@/types/event"
 
 import { CalendarDayCell } from "./CalendarDayCell"
 
 interface CalendarGridProps {
   days: Date[]
+  ddlsByDate: Map<string, DDL[]>
   month: Date
   categoryById: Map<string, Category>
   eventsByDate: Map<string, Event[]>
@@ -27,6 +29,7 @@ const WEEKS_PER_CALENDAR = 7
 
 export function CalendarGrid({
   days,
+  ddlsByDate,
   month,
   categoryById,
   eventsByDate,
@@ -97,6 +100,7 @@ export function CalendarGrid({
                   month={month}
                   categoryById={categoryById}
                   dayEvents={getEventsForDate(eventsByDate, date)}
+                  dayDDLs={ddlsByDate.get(formatDateKey(date)) ?? []}
                   selectedDate={selectedDate}
                   today={today}
                   onSelectDate={onSelectDate}

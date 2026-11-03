@@ -41,6 +41,7 @@ export function CategoryManager() {
   const {
     categories,
     events,
+    ddls,
     createCategory,
     updateCategory,
     deleteCategory,
@@ -58,6 +59,20 @@ export function CategoryManager() {
 
     return counts
   }, [events])
+  const ddlCountByCategory = useMemo(() => {
+    const counts = new Map<string, number>()
+
+    for (const ddl of ddls) {
+      if (ddl.categoryId) {
+        counts.set(
+          ddl.categoryId,
+          (counts.get(ddl.categoryId) ?? 0) + 1
+        )
+      }
+    }
+
+    return counts
+  }, [ddls])
 
   async function saveCategory(input: CategoryInput) {
     if (editor?.mode === "edit") {
@@ -126,6 +141,8 @@ export function CategoryManager() {
               {categories.map((category, index) => {
                 const eventCount =
                   eventCountByCategory.get(category.id) ?? 0
+                const ddlCount =
+                  ddlCountByCategory.get(category.id) ?? 0
 
                 return (
                   <Fragment key={category.id}>
@@ -147,7 +164,7 @@ export function CategoryManager() {
                             {category.name}
                           </span>
                           <Badge variant="outline">
-                            {eventCount} 条日程
+                            {eventCount} 日程 · {ddlCount} DDL
                           </Badge>
                         </div>
                         <p className="mt-1 font-mono text-[9px] text-muted-foreground">
@@ -185,7 +202,7 @@ export function CategoryManager() {
 
         <CardFooter className="justify-between gap-3 text-xs text-muted-foreground">
           <span>{categories.length} 个分类</span>
-          <span>{events.length} 条日程</span>
+          <span>{events.length} 日程 · {ddls.length} DDL</span>
         </CardFooter>
       </Card>
 
@@ -209,6 +226,9 @@ export function CategoryManager() {
           category={categoryToDelete}
           eventCount={
             eventCountByCategory.get(categoryToDelete.id) ?? 0
+          }
+          ddlCount={
+            ddlCountByCategory.get(categoryToDelete.id) ?? 0
           }
           otherCategories={categories.filter(
             (category) => category.id !== categoryToDelete.id

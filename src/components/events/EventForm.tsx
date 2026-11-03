@@ -1,6 +1,7 @@
 import { Plus, Save } from "lucide-react"
 import { useId, useState, type FormEvent } from "react"
 
+import { CategoryPicker } from "@/components/categories/CategoryPicker"
 import { NoteTypeSelector } from "@/components/notes/NoteTypeSelector"
 import { Button } from "@/components/ui/button"
 import {
@@ -14,22 +15,15 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldTitle,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { Textarea } from "@/components/ui/textarea"
 import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@/components/ui/toggle-group"
-import { ACCENT_BACKGROUND } from "@/lib/accent"
-import {
   formatDateKey,
   isValidDateKey,
   isValidTimeValue,
 } from "@/lib/date"
-import { cn } from "@/lib/utils"
 import { normalizeDataError } from "@/lib/errors"
 import { getNotePlaceholder } from "@/lib/notes"
 import type { Category } from "@/types/category"
@@ -237,38 +231,15 @@ export function EventForm({
         </FieldGroup>
 
         <Field data-invalid={Boolean(errors.categoryId)}>
-          <FieldTitle id={`${id}-category-label`}>日程分类</FieldTitle>
-          <ToggleGroup
-            value={categoryId ? [categoryId] : []}
-            onValueChange={(values) => {
-              if (values[0]) {
-                setCategoryId(values[0])
-                clearError("categoryId")
-              }
+          <CategoryPicker
+            categories={categories}
+            label="日程分类"
+            value={categoryId}
+            onValueChange={(nextCategoryId) => {
+              setCategoryId(nextCategoryId)
+              clearError("categoryId")
             }}
-            variant="outline"
-            size="sm"
-            spacing={2}
-            aria-labelledby={`${id}-category-label`}
-            className="flex-wrap"
-          >
-            {categories.map((category) => (
-              <ToggleGroupItem
-                key={category.id}
-                value={category.id}
-                aria-label={`选择${category.name}分类`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "size-1.5 rounded-full",
-                    ACCENT_BACKGROUND[category.color]
-                  )}
-                />
-                {category.name}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+          />
           {errors.categoryId && (
             <FieldError>{errors.categoryId}</FieldError>
           )}

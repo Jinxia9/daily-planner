@@ -1,6 +1,7 @@
 import { Plus, Save } from "lucide-react"
 import { useId, useState, type FormEvent } from "react"
 
+import { CategoryPicker } from "@/components/categories/CategoryPicker"
 import { NoteTypeSelector } from "@/components/notes/NoteTypeSelector"
 import { Button } from "@/components/ui/button"
 import {
@@ -21,10 +22,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { normalizeDataError } from "@/lib/errors"
 import { isValidDateKey, isValidTimeValue } from "@/lib/date"
 import { getNotePlaceholder } from "@/lib/notes"
+import type { Category } from "@/types/category"
 import type { DDL, DDLInput } from "@/types/ddl"
 import type { NoteType } from "@/types/note"
 
 interface DDLFormProps {
+  categories: Category[]
   ddl?: DDL
   defaultDeadline: string
   onCancel: () => void
@@ -35,9 +38,11 @@ interface DDLFormErrors {
   title?: string
   deadline?: string
   deadlineTime?: string
+  categoryId?: string
 }
 
 export function DDLForm({
+  categories,
   ddl,
   defaultDeadline,
   onCancel,
@@ -50,6 +55,9 @@ export function DDLForm({
   )
   const [deadlineTime, setDeadlineTime] = useState(
     ddl?.deadlineTime ?? ""
+  )
+  const [categoryId, setCategoryId] = useState(
+    ddl?.categoryId ?? categories[0]?.id ?? ""
   )
   const [description, setDescription] = useState(
     ddl?.description ?? ""
@@ -80,6 +88,13 @@ export function DDLForm({
       nextErrors.deadlineTime = "请选择有效的截止时间。"
     }
 
+    if (
+      !categoryId ||
+      !categories.some((category) => category.id === categoryId)
+    ) {
+      nextErrors.categoryId = "请选择 DDL 分类。"
+    }
+
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
       return
@@ -93,6 +108,7 @@ export function DDLForm({
         title: normalizedTitle,
         deadline,
         deadlineTime: deadlineTime || undefined,
+        categoryId,
         description: description.trim() || undefined,
         noteType,
         noteCompleted,
@@ -172,6 +188,24 @@ export function DDLForm({
             )}
           </Field>
         </FieldGroup>
+
+        <Field data-invalid={Boolean(errors.categoryId)}>
+          <CategoryPicker
+            categories={categories}
+            label="DDL 分类"
+            value={categoryId}
+            onValueChange={(nextCategoryId) => {
+              setCategoryId(nextCategoryId)
+              setErrors((current) => ({
+                ...current,
+                categoryId: undefined,
+              }))
+            }}
+          />
+          {errors.categoryId && (
+            <FieldError>{errors.categoryId}</FieldError>
+          )}
+        </Field>
 
         <Field>
           <FieldLabel htmlFor={`${id}-description`}>备注</FieldLabel>

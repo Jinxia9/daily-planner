@@ -222,6 +222,17 @@ export function CalendarDataProvider({
               : event
           )
         )
+        setDDLs((current) =>
+          current.map((ddl) =>
+            ddl.categoryId === categoryId
+              ? {
+                  ...ddl,
+                  categoryId: replacementCategoryId as string,
+                  updatedAt,
+                }
+              : ddl
+          )
+        )
       } catch (error) {
         throw recordMutationError(error)
       }

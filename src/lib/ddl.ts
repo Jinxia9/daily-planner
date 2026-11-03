@@ -8,6 +8,7 @@ import {
   isValidTimeValue,
 } from "@/lib/date"
 import type { DDL, DDLFilter } from "@/types/ddl"
+import { formatDateKey } from "@/lib/date"
 
 export type DDLTimeState =
   | "completed"
@@ -154,6 +155,32 @@ export function sortDDLsByDeadline(ddls: DDL[]): DDL[] {
       first.title.localeCompare(second.title, "zh-CN")
     )
   })
+}
+
+export function groupDDLsByDate(ddls: DDL[]) {
+  const ddlsByDate = new Map<string, DDL[]>()
+
+  for (const ddl of ddls) {
+    const dayDDLs = ddlsByDate.get(ddl.deadline)
+    if (dayDDLs) {
+      dayDDLs.push(ddl)
+    } else {
+      ddlsByDate.set(ddl.deadline, [ddl])
+    }
+  }
+
+  for (const [date, dayDDLs] of ddlsByDate) {
+    ddlsByDate.set(date, sortDDLsByDeadline(dayDDLs))
+  }
+
+  return ddlsByDate
+}
+
+export function getDDLsForDate(
+  ddlsByDate: Map<string, DDL[]>,
+  date: Date
+): DDL[] {
+  return ddlsByDate.get(formatDateKey(date)) ?? []
 }
 
 export function formatDDLDeadline(

@@ -47,13 +47,19 @@ export function NoteContent({
   )
 
   return (
-    <div className="flex min-w-0 flex-col items-start gap-2">
+    <div
+      data-note-content={noteType}
+      className="flex min-w-0 flex-col items-start gap-2"
+    >
       <Badge variant="outline">
         <Icon data-icon="inline-start" aria-hidden="true" />
         {meta.label}
       </Badge>
       {noteType === "todo" && onToggleCompleted ? (
-        <label className="flex min-w-0 cursor-pointer items-start gap-2.5">
+        <label
+          data-todo-note
+          className="flex w-full min-w-0 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-background px-3 py-2.5"
+        >
           <input
             type="checkbox"
             checked={completed}
@@ -64,12 +70,19 @@ export function NoteContent({
             aria-label={`完成待办：${normalizedDescription}`}
             className="mt-1 size-4 shrink-0 rounded border-input accent-primary"
           />
-          <span className="min-w-0 whitespace-pre-wrap break-words">
+          <span
+            data-note-text
+            className="min-w-0 whitespace-pre-wrap break-words"
+          >
             {noteText}
           </span>
         </label>
       ) : (
-        <p className="whitespace-pre-wrap break-words">{noteText}</p>
+        <div className="w-full rounded-lg border border-input bg-muted/20 px-3 py-2.5">
+          <p data-note-text className="whitespace-pre-wrap break-words">
+            {noteText}
+          </p>
+        </div>
       )}
     </div>
   )
