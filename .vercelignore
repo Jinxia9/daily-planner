@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+.daily-planner-server.json
+.daily-planner-dev.log
+.daily-planner-dev-error.log
+dist
+node_modules
+*.log
