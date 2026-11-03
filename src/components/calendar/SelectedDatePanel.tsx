@@ -55,7 +55,7 @@ export function SelectedDatePanel({
   return (
     <Card
       id="selected-date-details"
-      className="scroll-mt-20 overflow-hidden xl:sticky xl:top-8"
+      className="scroll-mt-20 overflow-hidden"
     >
       <CardHeader>
         <CardDescription className="font-mono text-[10px] tracking-[0.06em]">

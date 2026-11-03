@@ -1,6 +1,7 @@
 import { Plus, Save } from "lucide-react"
 import { useId, useState, type FormEvent } from "react"
 
+import { NoteTypeSelector } from "@/components/notes/NoteTypeSelector"
 import { Button } from "@/components/ui/button"
 import {
   Alert,
@@ -30,8 +31,10 @@ import {
 } from "@/lib/date"
 import { cn } from "@/lib/utils"
 import { normalizeDataError } from "@/lib/errors"
+import { getNotePlaceholder } from "@/lib/notes"
 import type { Category } from "@/types/category"
 import type { CreateEventInput, Event } from "@/types/event"
+import type { NoteType } from "@/types/note"
 
 interface EventFormProps {
   categories: Category[]
@@ -68,6 +71,9 @@ export function EventForm({
   )
   const [description, setDescription] = useState(
     event?.description ?? ""
+  )
+  const [noteType, setNoteType] = useState<NoteType>(
+    event?.noteType ?? "text"
   )
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSaving, setIsSaving] = useState(false)
@@ -137,6 +143,7 @@ export function EventForm({
         endTime: endTime || undefined,
         categoryId,
         description: description.trim() || undefined,
+        noteType,
       })
     } catch (error) {
       setSubmitError(
@@ -265,13 +272,17 @@ export function EventForm({
 
         <Field>
           <FieldLabel htmlFor={`${id}-description`}>备注</FieldLabel>
+          <NoteTypeSelector
+            value={noteType}
+            onValueChange={setNoteType}
+          />
           <Textarea
             id={`${id}-description`}
             value={description}
             onChange={(inputEvent) =>
               setDescription(inputEvent.target.value)
             }
-            placeholder="补充地点、准备事项或其他说明"
+            placeholder={getNotePlaceholder(noteType)}
             rows={4}
             maxLength={500}
           />

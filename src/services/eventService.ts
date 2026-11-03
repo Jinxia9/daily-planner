@@ -9,7 +9,7 @@ import type {
 } from "@/types/event"
 
 const EVENT_COLUMNS =
-  "id, user_id, title, date, start_time, end_time, category_id, description, created_at, updated_at"
+  "id, user_id, title, date, start_time, end_time, category_id, description, note_type, created_at, updated_at"
 
 function toEventRowInput(input: CreateEventInput) {
   return {
@@ -19,6 +19,7 @@ function toEventRowInput(input: CreateEventInput) {
     end_time: input.endTime ?? null,
     category_id: input.categoryId,
     description: input.description ?? null,
+    note_type: input.noteType,
   }
 }
 

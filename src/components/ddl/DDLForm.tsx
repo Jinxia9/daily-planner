@@ -2,6 +2,7 @@ import { Plus, Save } from "lucide-react"
 import { useId, useState, type FormEvent } from "react"
 
 import { DDLProgressControl } from "@/components/ddl/DDLProgressControl"
+import { NoteTypeSelector } from "@/components/notes/NoteTypeSelector"
 import { Button } from "@/components/ui/button"
 import {
   Alert,
@@ -22,7 +23,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { clampProgress } from "@/lib/ddl"
 import { normalizeDataError } from "@/lib/errors"
 import { isValidDateKey } from "@/lib/date"
+import { getNotePlaceholder } from "@/lib/notes"
 import type { DDL, DDLInput } from "@/types/ddl"
+import type { NoteType } from "@/types/note"
 
 interface DDLFormProps {
   ddl?: DDL
@@ -50,6 +53,9 @@ export function DDLForm({
   const [progress, setProgress] = useState(ddl?.progress ?? 0)
   const [description, setDescription] = useState(
     ddl?.description ?? ""
+  )
+  const [noteType, setNoteType] = useState<NoteType>(
+    ddl?.noteType ?? "text"
   )
   const [errors, setErrors] = useState<DDLFormErrors>({})
   const [isSaving, setIsSaving] = useState(false)
@@ -83,6 +89,7 @@ export function DDLForm({
         deadline,
         progress: clampProgress(progress),
         description: description.trim() || undefined,
+        noteType,
       })
     } catch (error) {
       setSubmitError(
@@ -152,11 +159,15 @@ export function DDLForm({
 
         <Field>
           <FieldLabel htmlFor={`${id}-description`}>备注</FieldLabel>
+          <NoteTypeSelector
+            value={noteType}
+            onValueChange={setNoteType}
+          />
           <Textarea
             id={`${id}-description`}
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="补充交付要求、材料位置或其他说明"
+            placeholder={getNotePlaceholder(noteType)}
             rows={4}
             maxLength={500}
           />

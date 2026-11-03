@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 interface PageHeaderProps {
   path: string
   title: string
-  description: string
+  description?: string
   actions?: ReactNode
 }
 
@@ -22,9 +22,11 @@ export function PageHeader({
         <h1 className="mt-2 text-[clamp(2.1rem,5vw,4.4rem)] leading-[0.95] font-medium tracking-[-0.04em] sm:mt-3">
           {title}
         </h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-4 sm:text-base">
-          {description}
-        </p>
+        {description && (
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:mt-4 sm:text-base">
+            {description}
+          </p>
+        )}
       </div>
 
       {actions && (

@@ -85,7 +85,7 @@ export function DDLStatusPanel({ ddls, today }: DDLStatusPanelProps) {
         </CardDescription>
         <CardTitle>任务概览</CardTitle>
         <CardAction>
-          <Badge variant="outline">LOCAL</Badge>
+          <Badge variant="outline">CLOUD</Badge>
         </CardAction>
       </CardHeader>
 
@@ -107,7 +107,7 @@ export function DDLStatusPanel({ ddls, today }: DDLStatusPanelProps) {
       </CardContent>
 
       <CardFooter className="text-xs leading-relaxed text-muted-foreground">
-        完成进度按任务投入计算，不会随时间自动增加。数据保存在当前浏览器。
+        完成进度按任务投入计算，不会随时间自动增加。数据会同步到当前账户的 Supabase 云端。
       </CardFooter>
     </Card>
   )

@@ -6,7 +6,7 @@ import type { DDLRow } from "@/types/database"
 import type { DDL, DDLInput } from "@/types/ddl"
 
 const DDL_COLUMNS =
-  "id, user_id, title, deadline, progress, description, completed, created_at, updated_at"
+  "id, user_id, title, deadline, progress, description, note_type, completed, created_at, updated_at"
 
 function toDDLRowInput(input: DDLInput) {
   return {
@@ -14,6 +14,7 @@ function toDDLRowInput(input: DDLInput) {
     deadline: input.deadline,
     progress: clampProgress(input.progress),
     description: input.description ?? null,
+    note_type: input.noteType,
   }
 }
 

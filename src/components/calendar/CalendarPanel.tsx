@@ -11,6 +11,7 @@ import {
 import { CalendarGrid } from "@/components/calendar/CalendarGrid"
 import { CategoryFilter } from "@/components/calendar/CategoryFilter"
 import { formatMonthTitle, getCalendarDays } from "@/lib/date"
+import { usePreferences } from "@/hooks/usePreferences"
 import type { Category } from "@/types/category"
 import type { Event } from "@/types/event"
 
@@ -43,7 +44,8 @@ export function CalendarPanel({
   onToday,
   selectedCategoryIds,
 }: CalendarPanelProps) {
-  const days = getCalendarDays(month)
+  const { preferences } = usePreferences()
+  const days = getCalendarDays(month, preferences.weekStartsOnMonday)
 
   return (
     <Card className="min-w-0 gap-0 overflow-hidden py-0">
@@ -112,6 +114,8 @@ export function CalendarPanel({
           eventsByDate={eventsByDate}
           selectedDate={selectedDate}
           today={today}
+          showWeekNumbers={preferences.showWeekNumbers}
+          weekStartsOnMonday={preferences.weekStartsOnMonday}
           onSelectDate={onSelectDate}
         />
       </CardContent>

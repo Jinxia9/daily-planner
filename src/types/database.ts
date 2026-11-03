@@ -1,4 +1,5 @@
 import type { CategoryColor } from "@/types/category"
+import type { NoteType } from "@/types/note"
 
 export interface CategoryRow {
   id: string
@@ -17,6 +18,7 @@ export interface EventRow {
   end_time: string | null
   category_id: string
   description: string | null
+  note_type: NoteType
   created_at: string
   updated_at: string
 }
@@ -28,6 +30,7 @@ export interface DDLRow {
   deadline: string
   progress: number
   description: string | null
+  note_type: NoteType
   completed: boolean
   created_at: string
   updated_at: string

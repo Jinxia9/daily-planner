@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { NoteContent } from "@/components/notes/NoteContent"
 import { Separator } from "@/components/ui/separator"
 import { Spinner } from "@/components/ui/spinner"
 import {
@@ -29,6 +30,7 @@ import {
 } from "@/lib/date"
 import { getEventTimeLabel } from "@/lib/events"
 import { normalizeDataError } from "@/lib/errors"
+import { usePreferences } from "@/hooks/usePreferences"
 import { cn } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import type { Event } from "@/types/event"
@@ -46,6 +48,7 @@ export function EventDetail({
   onDelete,
   onEdit,
 }: EventDetailProps) {
+  const { preferences } = usePreferences()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -75,7 +78,7 @@ export function EventDetail({
         </div>
         <div className="grid grid-cols-[5rem_1fr] gap-3 border-b py-3">
           <dt className="text-muted-foreground">时间</dt>
-          <dd>{getEventTimeLabel(event)}</dd>
+          <dd>{getEventTimeLabel(event, preferences.use24HourTime)}</dd>
         </div>
         <div className="grid grid-cols-[5rem_1fr] gap-3 border-b py-3">
           <dt className="text-muted-foreground">分类</dt>
@@ -95,8 +98,11 @@ export function EventDetail({
         </div>
         <div className="grid grid-cols-[5rem_1fr] gap-3 py-3">
           <dt className="text-muted-foreground">备注</dt>
-          <dd className="whitespace-pre-wrap leading-relaxed text-muted-foreground">
-            {event.description?.trim() || "暂无备注"}
+          <dd>
+            <NoteContent
+              description={event.description}
+              noteType={event.noteType}
+            />
           </dd>
         </div>
       </dl>

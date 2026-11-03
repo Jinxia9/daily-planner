@@ -1,10 +1,10 @@
 import { format } from "date-fns"
-import { useState } from "react"
 
 import { BrandMark } from "@/components/layout/BrandMark"
+import { useCurrentDate } from "@/hooks/useCurrentDate"
 
 export function MobileHeader() {
-  const [today] = useState(() => new Date())
+  const today = useCurrentDate()
 
   return (
     <header className="sticky top-0 z-40 border-b bg-card/90 px-4 py-3 backdrop-blur-md md:hidden">

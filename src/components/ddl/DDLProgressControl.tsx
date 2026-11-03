@@ -8,6 +8,7 @@ interface DDLProgressControlProps {
   disabled?: boolean
   label: string
   onValueChange: (value: number) => void
+  onValueCommit?: (value: number) => void
   value: number
 }
 
@@ -15,6 +16,7 @@ export function DDLProgressControl({
   disabled = false,
   label,
   onValueChange,
+  onValueCommit,
   value,
 }: DDLProgressControlProps) {
   const id = useId()
@@ -39,7 +41,11 @@ export function DDLProgressControl({
       displayedValue === "" ? value : Number(displayedValue)
     )
     setDraftValue(null)
-    onValueChange(normalizedValue)
+    if (onValueCommit) {
+      onValueCommit(normalizedValue)
+    } else {
+      onValueChange(normalizedValue)
+    }
   }
 
   return (
@@ -88,6 +94,19 @@ export function DDLProgressControl({
             onValueChange(clampProgress(valueToSet))
           }
         }}
+        onValueCommitted={
+          onValueCommit
+            ? (nextValue) => {
+                const valueToSet = Array.isArray(nextValue)
+                  ? nextValue[0]
+                  : nextValue
+
+                if (typeof valueToSet === "number") {
+                  onValueCommit(clampProgress(valueToSet))
+                }
+              }
+            : undefined
+        }
         thumbAriaLabel={`${label}滑块`}
       />
     </div>

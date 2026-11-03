@@ -1,4 +1,4 @@
-import { formatDateKey } from "@/lib/date"
+import { formatDateKey, formatTimeValue } from "@/lib/date"
 import type { Event } from "@/types/event"
 
 export const EMPTY_EVENTS: Event[] = []
@@ -38,10 +38,15 @@ export function getEventsForDate(
   return eventsByDate.get(formatDateKey(date)) ?? EMPTY_EVENTS
 }
 
-export function getEventTimeLabel(event: Event): string {
+export function getEventTimeLabel(
+  event: Event,
+  use24HourTime = true
+): string {
   if (event.startTime && event.endTime) {
-    return `${event.startTime} – ${event.endTime}`
+    return `${formatTimeValue(event.startTime, use24HourTime)} – ${formatTimeValue(event.endTime, use24HourTime)}`
   }
 
-  return event.startTime ?? "全天"
+  return event.startTime
+    ? formatTimeValue(event.startTime, use24HourTime)
+    : "全天"
 }

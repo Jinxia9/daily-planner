@@ -84,9 +84,6 @@ export function Sidebar() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            数据通过 Supabase 同步到当前账户。
-          </p>
           {accountError && (
             <p className="text-xs text-destructive">{accountError}</p>
           )}
@@ -120,10 +117,6 @@ export function Sidebar() {
           </Button>
         </CardFooter>
       </Card>
-
-      <p className="mt-4 px-1 text-[10px] leading-relaxed text-muted-foreground">
-        按自己的节奏，安排重要的事。
-      </p>
     </aside>
   )
 }

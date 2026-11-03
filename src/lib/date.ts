@@ -5,6 +5,7 @@ import {
   format,
   getDate,
   getDaysInMonth,
+  getWeek,
   isValid,
   parseISO,
   setDate,
@@ -16,6 +17,15 @@ import { zhCN } from "date-fns/locale"
 
 export const APP_TIME_ZONE = "Asia/Shanghai"
 export const WEEKDAY_LABELS = ["一", "二", "三", "四", "五", "六", "日"]
+export const WEEKDAY_LABELS_SUNDAY_FIRST = [
+  "日",
+  "一",
+  "二",
+  "三",
+  "四",
+  "五",
+  "六",
+]
 
 export function formatDateKey(date: Date): string {
   return format(date, "yyyy-MM-dd")
@@ -89,9 +99,13 @@ export function formatTimestamp(value: string): string {
   return format(parseISO(value), "M月d日 HH:mm", { locale: zhCN })
 }
 
-export function getCalendarDays(month: Date): Date[] {
-  const gridStart = startOfWeek(startOfMonth(month), { weekStartsOn: 1 })
-  const gridEnd = endOfWeek(endOfMonth(month), { weekStartsOn: 1 })
+export function getCalendarDays(
+  month: Date,
+  weekStartsOnMonday = true
+): Date[] {
+  const weekStartsOn = weekStartsOnMonday ? 1 : 0
+  const gridStart = startOfWeek(startOfMonth(month), { weekStartsOn })
+  const gridEnd = endOfWeek(endOfMonth(month), { weekStartsOn })
   const days: Date[] = []
 
   for (
@@ -103,6 +117,31 @@ export function getCalendarDays(month: Date): Date[] {
   }
 
   return days
+}
+
+export function getCalendarWeekNumber(
+  date: Date,
+  weekStartsOnMonday = true
+): number {
+  return getWeek(date, {
+    firstWeekContainsDate: 1,
+    weekStartsOn: weekStartsOnMonday ? 1 : 0,
+  })
+}
+
+export function formatTimeValue(
+  value: string,
+  use24HourTime = true
+): string {
+  if (use24HourTime || !isValidTimeValue(value)) {
+    return value
+  }
+
+  const [hourText, minute] = value.split(":")
+  const hour = Number(hourText)
+  const displayHour = hour % 12 || 12
+  const period = hour < 12 ? "上午" : "下午"
+  return `${period} ${displayHour}:${minute}`
 }
 
 export function getDateInMonthClamped(

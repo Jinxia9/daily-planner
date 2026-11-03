@@ -1,6 +1,8 @@
 import { ChevronRight } from "lucide-react"
 
 import { ACCENT_BACKGROUND } from "@/lib/accent"
+import { formatTimeValue } from "@/lib/date"
+import { usePreferences } from "@/hooks/usePreferences"
 import { cn } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import type { Event } from "@/types/event"
@@ -12,7 +14,14 @@ interface EventItemProps {
 }
 
 export function EventItem({ category, event, onSelect }: EventItemProps) {
+  const { preferences } = usePreferences()
   const categoryColor = category?.color ?? "red"
+  const startTime = event.startTime
+    ? formatTimeValue(event.startTime, preferences.use24HourTime)
+    : "全天"
+  const endTime = event.endTime
+    ? formatTimeValue(event.endTime, preferences.use24HourTime)
+    : undefined
 
   return (
     <button
@@ -24,7 +33,7 @@ export function EventItem({ category, event, onSelect }: EventItemProps) {
       className="group -mx-2 flex min-w-0 items-start gap-3 rounded-lg px-2 py-3 text-left outline-none transition-colors hover:bg-muted/55 focus-visible:ring-2 focus-visible:ring-ring"
     >
       <span className="w-11 shrink-0 pt-0.5 font-mono text-[10px] leading-4 text-muted-foreground">
-        {event.startTime ?? "全天"}
+        {startTime}
       </span>
       <span
         aria-hidden="true"
@@ -40,7 +49,7 @@ export function EventItem({ category, event, onSelect }: EventItemProps) {
         </span>
         <span className="mt-0.5 block text-xs text-muted-foreground">
           {category?.name ?? "未分类"}
-          {event.endTime ? ` · 至 ${event.endTime}` : ""}
+          {endTime ? ` · 至 ${endTime}` : ""}
         </span>
       </span>
       <ChevronRight

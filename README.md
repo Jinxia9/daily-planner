@@ -23,7 +23,7 @@ npm run lint
 ## Supabase 配置
 
 1. 在 Supabase 创建项目。
-2. 在 SQL Editor 执行 `supabase/migrations/202611030001_initial_schema.sql`。
+2. 在 SQL Editor 按文件名顺序执行 `supabase/migrations/` 下的全部 SQL 文件。
 3. 在 Supabase Authentication 中配置站点地址和允许的 Redirect URL。
 4. 将 `.env.example` 复制为 `.env.local`，填写：
 
@@ -86,6 +86,7 @@ src/
 │   ├── ddl/
 │   ├── events/
 │   ├── layout/
+│   ├── notes/
 │   ├── settings/
 │   └── ui/
 ├── contexts/          # Auth 与云端数据状态
@@ -102,7 +103,8 @@ src/
 
 supabase/
 └── migrations/
-    └── 202611030001_initial_schema.sql
+    ├── 202611030001_initial_schema.sql
+    └── 202611030002_note_types.sql
 
 scripts/
 └── test-rls.mjs
@@ -111,11 +113,13 @@ scripts/
 ## 当前范围
 
 - 月历支持月份切换、日期选择、分类筛选和日程 CRUD。
+- 月历右侧显示当前显示月份的全部 DDL 汇总。
 - 分类支持 CRUD；删除有关联日程的分类时，通过数据库 RPC 原子迁移。
 - DDL 支持 CRUD、截止倒计时、进度调整、完成和重新开启。
+- 日程和 DDL 的备注支持文本、地址和待办三种标识；地址仅保存用户填写内容，不接入地图导航。
 - 设置页提供账户信息、手动刷新和退出登录。
-- 设置页中的显示偏好仍为预览状态。
-- Vercel 部署尚未配置。
+- 设置页支持周起始日、12/24 小时制和周数显示，偏好保存在当前浏览器。
+- Vercel 生产环境已部署，后续推送 `main` 分支会自动更新。
 
 ## Vercel 部署
 

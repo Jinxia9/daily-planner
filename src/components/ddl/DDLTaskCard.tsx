@@ -7,6 +7,7 @@ import {
 import { useState } from "react"
 
 import { DDLProgressControl } from "@/components/ddl/DDLProgressControl"
+import { NoteContent } from "@/components/notes/NoteContent"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,19 +81,22 @@ export function DDLTaskCard({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isUpdating, setIsUpdating] = useState(false)
+  const [draftProgress, setDraftProgress] = useState<number | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [updateError, setUpdateError] = useState<string | null>(null)
   const statusBadge = getStatusBadge(timeInfo)
   const showTimeDetail =
     timeInfo.state !== "completed" && timeInfo.state !== "today"
 
-  async function handleProgressChange(progress: number) {
+  async function handleProgressCommit(progress: number) {
     setUpdateError(null)
     setIsUpdating(true)
 
     try {
       await onProgressChange(ddl.id, progress)
+      setDraftProgress(null)
     } catch (error) {
+      setDraftProgress(null)
       setUpdateError(
         normalizeDataError(error, "更新进度失败。").message
       )
@@ -142,7 +146,12 @@ export function DDLTaskCard({
           {ddl.title}
         </CardTitle>
         {ddl.description && (
-          <CardDescription>{ddl.description}</CardDescription>
+          <div className="text-sm">
+            <NoteContent
+              description={ddl.description}
+              noteType={ddl.noteType}
+            />
+          </div>
         )}
         <CardAction>
           <Badge variant={statusBadge.variant}>
@@ -180,10 +189,11 @@ export function DDLTaskCard({
 
         <DDLProgressControl
           label="调整完成进度"
-          value={ddl.progress}
+          value={draftProgress ?? ddl.progress}
           disabled={ddl.completed || isUpdating}
-          onValueChange={(progress) => {
-            void handleProgressChange(progress)
+          onValueChange={setDraftProgress}
+          onValueCommit={(progress) => {
+            void handleProgressCommit(progress)
           }}
         />
         {updateError && (

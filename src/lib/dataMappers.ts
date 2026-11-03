@@ -1,4 +1,5 @@
 import { isCategoryColor } from "@/data/categoryColors"
+import { isNoteType } from "@/lib/notes"
 import type { Category } from "@/types/category"
 import type { DDL } from "@/types/ddl"
 import type { Event } from "@/types/event"
@@ -30,6 +31,7 @@ export function mapEventRow(row: EventRow): Event {
     endTime: formatPostgresTime(row.end_time),
     categoryId: row.category_id,
     description: row.description ?? undefined,
+    noteType: isNoteType(row.note_type) ? row.note_type : "text",
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -42,6 +44,7 @@ export function mapDDLRow(row: DDLRow): DDL {
     deadline: row.deadline,
     progress: row.progress,
     description: row.description ?? undefined,
+    noteType: isNoteType(row.note_type) ? row.note_type : "text",
     completed: row.completed,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

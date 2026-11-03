@@ -1,4 +1,6 @@
 import { ACCENT_BACKGROUND } from "@/lib/accent"
+import { formatTimeValue } from "@/lib/date"
+import { usePreferences } from "@/hooks/usePreferences"
 import { cn } from "@/lib/utils"
 import type { Category } from "@/types/category"
 import type { Event } from "@/types/event"
@@ -14,11 +16,15 @@ export function CalendarEventChip({
   event,
   className,
 }: CalendarEventChipProps) {
+  const { preferences } = usePreferences()
   const categoryColor = category?.color ?? "red"
+  const timeLabel = event.startTime
+    ? `${formatTimeValue(event.startTime, preferences.use24HourTime)} `
+    : ""
 
   return (
     <span
-      title={`${event.startTime ? `${event.startTime} ` : ""}${event.title}`}
+      title={`${timeLabel}${event.title}`}
       className={cn(
         "flex min-w-0 items-center gap-1 rounded-md bg-muted/75 px-1 py-0.5",
         className

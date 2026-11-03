@@ -1,3 +1,5 @@
+import type { NoteType } from "@/types/note"
+
 export interface Event {
   id: string
   title: string
@@ -6,6 +8,7 @@ export interface Event {
   endTime?: string
   categoryId: string
   description?: string
+  noteType: NoteType
   createdAt: string
   updatedAt: string
 }

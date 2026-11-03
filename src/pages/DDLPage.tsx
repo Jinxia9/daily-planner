@@ -87,7 +87,6 @@ export function DDLPage() {
       <PageHeader
         path="/ddl"
         title="DDL 倒计时"
-        description="关注截止日期，同时记录任务本身完成了多少。进度不会随时间自动变化。"
         actions={
           <Button size="sm" onClick={openCreateDialog}>
             <Plus data-icon="inline-start" />

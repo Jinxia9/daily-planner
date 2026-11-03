@@ -5,6 +5,7 @@ import { AppLayout } from "@/components/layout/AppLayout"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { CalendarDataProvider } from "@/contexts/calendar-data-context"
 import { AuthProvider } from "@/contexts/AuthProvider"
+import { PreferencesProvider } from "@/contexts/PreferencesProvider"
 import { LoginPage } from "@/pages/LoginPage"
 import { RegisterPage } from "@/pages/RegisterPage"
 
@@ -31,23 +32,25 @@ const NotFoundPage = lazy(() =>
 
 function App() {
   return (
-    <AuthProvider>
-      <CalendarDataProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route index element={<Navigate to="/calendar" replace />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/ddl" element={<DDLPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<NotFoundPage />} />
+    <PreferencesProvider>
+      <AuthProvider>
+        <CalendarDataProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route index element={<Navigate to="/calendar" replace />} />
+                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/ddl" element={<DDLPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-      </CalendarDataProvider>
-    </AuthProvider>
+          </Routes>
+        </CalendarDataProvider>
+      </AuthProvider>
+    </PreferencesProvider>
   )
 }
 

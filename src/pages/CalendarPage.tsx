@@ -9,12 +9,14 @@ import {
 import { useCallback, useMemo, useState } from "react"
 
 import { CalendarPanel } from "@/components/calendar/CalendarPanel"
+import { MonthlyDDLSummary } from "@/components/calendar/MonthlyDDLSummary"
 import { SelectedDatePanel } from "@/components/calendar/SelectedDatePanel"
 import { EventDetailDialog } from "@/components/events/EventDetailDialog"
 import { EventDialog } from "@/components/events/EventDialog"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useCalendarData } from "@/hooks/useCalendarData"
+import { useCurrentDate } from "@/hooks/useCurrentDate"
 import { getDateInMonthClamped } from "@/lib/date"
 import { getEventsForDate, groupEventsByDate } from "@/lib/events"
 import type { CreateEventInput, Event } from "@/types/event"
@@ -33,7 +35,7 @@ export function CalendarPage() {
     updateEvent,
     deleteEvent,
   } = useCalendarData()
-  const [today] = useState(() => startOfDay(new Date()))
+  const today = useCurrentDate()
   const [visibleMonth, setVisibleMonth] = useState(() =>
     startOfMonth(today)
   )
@@ -161,7 +163,6 @@ export function CalendarPage() {
       <PageHeader
         path="/calendar"
         title="月历"
-        description="把重要的事放进看得见的时间里。点击日期查看安排，点击日程查看详情。"
         actions={
           <>
             <Button
@@ -199,15 +200,18 @@ export function CalendarPage() {
           onSelectDate={selectDate}
           onToday={goToToday}
         />
-        <SelectedDatePanel
-          canAddEvent={canCreateEvent}
-          categoryById={categoryById}
-          events={selectedDateEvents}
-          selectedDate={selectedDate}
-          today={today}
-          onQuickAdd={openCreateDialog}
-          onSelectEvent={openEventDetail}
-        />
+        <div className="flex min-w-0 flex-col gap-5 xl:sticky xl:top-8">
+          <SelectedDatePanel
+            canAddEvent={canCreateEvent}
+            categoryById={categoryById}
+            events={selectedDateEvents}
+            selectedDate={selectedDate}
+            today={today}
+            onQuickAdd={openCreateDialog}
+            onSelectEvent={openEventDetail}
+          />
+          <MonthlyDDLSummary month={visibleMonth} today={today} />
+        </div>
       </div>
 
       <EventDialog
