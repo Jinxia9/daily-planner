@@ -117,6 +117,37 @@ scripts/
 - 设置页中的显示偏好仍为预览状态。
 - Vercel 部署尚未配置。
 
+## Vercel 部署
+
+项目已包含 `vercel.json`：
+
+- Framework Preset：Vite
+- Build Command：`npm run build`
+- Output Directory：`dist`
+- 所有前端子路由回退到 `index.html`
+- 附加基础安全响应头
+
+Vercel 环境变量只需要：
+
+```env
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+
+不要配置数据库密码、`service_role` 或任何服务端私钥。
+
+首次部署完成后，在 Supabase Authentication 的 URL Configuration 中把正式域名加入 Site URL，并将 `https://正式域名/login` 加入 Redirect URLs。
+
+后续发布：
+
+```bash
+git add .
+git commit -m "feat: describe the change"
+git push
+```
+
+Vercel 会自动为 `main` 分支创建新的生产部署。
+
 ## 响应式布局
 
 - 小于 768px：手机顶部品牌栏 + 底部三项触控导航。
