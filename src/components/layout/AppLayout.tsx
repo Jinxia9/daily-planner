@@ -32,7 +32,7 @@ export function AppLayout() {
       <main
         id="main-content"
         tabIndex={-1}
-        className="min-h-svh outline-none md:pl-20 lg:pl-[17.5rem]"
+        className="min-h-svh outline-none md:pl-20"
       >
         <div className="mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-[96rem] flex-col px-4 pt-5 pb-[calc(5.75rem+env(safe-area-inset-bottom))] sm:px-6 sm:pt-7 md:min-h-svh md:px-6 md:py-7 lg:px-10 lg:py-8">
           <DataStateGate>

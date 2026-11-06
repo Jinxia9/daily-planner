@@ -1,6 +1,5 @@
 import { BrandMark } from "@/components/layout/BrandMark"
-import { NavigationItem } from "@/components/layout/NavigationItem"
-import { APP_NAVIGATION } from "@/lib/navigation"
+import { NavigationList } from "@/components/layout/NavigationList"
 
 export function TabletNavigation() {
   return (
@@ -10,14 +9,7 @@ export function TabletNavigation() {
     >
       <BrandMark iconOnly />
 
-      <nav
-        aria-label="主要导航"
-        className="mt-8 flex w-full flex-col gap-2"
-      >
-        {APP_NAVIGATION.map((item) => (
-          <NavigationItem key={item.path} item={item} variant="tablet" />
-        ))}
-      </nav>
+      <NavigationList variant="tablet" iconOnly className="mt-8" />
 
       <div className="mt-auto flex flex-col items-center gap-2">
         <span

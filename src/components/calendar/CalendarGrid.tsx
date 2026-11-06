@@ -59,7 +59,7 @@ export function CalendarGrid({
             {showWeekNumbers && (
               <th
                 scope="col"
-                className="border-r border-b bg-muted/50 py-2 text-center font-mono text-[8px] font-normal text-muted-foreground sm:text-[9px]"
+                className="border-0 bg-transparent py-2 text-center font-mono text-[8px] font-normal text-muted-foreground sm:text-[9px] md:border-r md:border-b md:bg-muted/50"
               >
                 周
               </th>
@@ -68,7 +68,7 @@ export function CalendarGrid({
               <th
                 key={label}
                 scope="col"
-                className="border-r border-b bg-muted/50 py-2 text-center font-mono text-[9px] font-normal tracking-[0.08em] text-muted-foreground last:border-r-0 sm:text-[10px]"
+                className="border-0 bg-transparent py-2 text-center font-mono text-[9px] font-normal tracking-[0.08em] text-muted-foreground sm:text-[10px] md:border-r md:border-b md:bg-muted/50 md:last:border-r-0"
               >
                 <span className="sm:hidden">{label}</span>
                 <span className="hidden sm:inline">周{label}</span>
@@ -85,7 +85,7 @@ export function CalendarGrid({
               {showWeekNumbers && (
                 <th
                   scope="row"
-                  className="border-r border-b bg-muted/20 p-1 text-center align-middle font-mono text-[8px] font-normal text-muted-foreground sm:text-[9px]"
+                  className="border-0 bg-transparent p-1 text-center align-middle font-mono text-[8px] font-normal text-muted-foreground sm:text-[9px] md:border-r md:border-b md:bg-muted/20"
                 >
                   {getCalendarWeekNumber(
                     week[0],

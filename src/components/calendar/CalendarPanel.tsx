@@ -74,7 +74,7 @@ export function CalendarPanel({
             <Button
               variant="outline"
               size="sm"
-              className="size-11 px-0 sm:h-10 sm:w-auto sm:px-2.5"
+              className="size-8 px-0 sm:h-10 sm:w-auto sm:px-2.5"
               onClick={onToday}
               aria-label="今天"
             >
@@ -84,7 +84,7 @@ export function CalendarPanel({
             <Button
               variant="outline"
               size="icon"
-              className="size-11 shrink-0 sm:size-10"
+              className="size-8 shrink-0 sm:size-10"
               aria-label="上一个月"
               onClick={onPreviousMonth}
             >
@@ -93,7 +93,7 @@ export function CalendarPanel({
             <Button
               variant="outline"
               size="icon"
-              className="size-11 shrink-0 sm:size-10"
+              className="size-8 shrink-0 sm:size-10"
               aria-label="下一个月"
               onClick={onNextMonth}
             >
@@ -103,7 +103,7 @@ export function CalendarPanel({
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="border-b px-3 py-3 sm:px-4">
+        <div className="border-b px-3 py-2.5 sm:px-4 sm:py-3">
           <CategoryFilter
             categories={categories}
             selectedCategoryIds={selectedCategoryIds}
