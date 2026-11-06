@@ -8,7 +8,6 @@ import {
   isValidTimeValue,
 } from "@/lib/date"
 import type { DDL, DDLFilter } from "@/types/ddl"
-import { formatDateKey } from "@/lib/date"
 
 export type DDLTimeState =
   | "completed"
@@ -176,12 +175,6 @@ export function groupDDLsByDate(ddls: DDL[]) {
   return ddlsByDate
 }
 
-export function getDDLsForDate(
-  ddlsByDate: Map<string, DDL[]>,
-  date: Date
-): DDL[] {
-  return ddlsByDate.get(formatDateKey(date)) ?? []
-}
 
 export function formatDDLDeadline(
   deadline: string,

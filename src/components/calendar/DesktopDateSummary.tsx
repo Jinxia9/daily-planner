@@ -14,13 +14,13 @@ export function DesktopDateSummary({
   return (
     <div
       data-desktop-date-summary
-      className="flex w-full items-start justify-between gap-5"
+      className="flex w-full items-start justify-between gap-3 lg:gap-5"
     >
       <div className="font-mono text-[10px] leading-relaxed tracking-[0.04em] text-muted-foreground">
         <p>{formatYear(date)}</p>
         <p>{formatWeekday(date)}</p>
       </div>
-      <p className="text-xl leading-tight font-medium tracking-[-0.03em]">
+      <p className="text-lg leading-tight font-medium tracking-[-0.03em] sm:text-xl">
         {formatMonthDay(date)}
       </p>
     </div>

@@ -12,19 +12,15 @@ import { CalendarPanel } from "@/components/calendar/CalendarPanel"
 import { DesktopDateSummary } from "@/components/calendar/DesktopDateSummary"
 import { MonthlyDDLSummary } from "@/components/calendar/MonthlyDDLSummary"
 import { MonthlyEventOverview } from "@/components/calendar/MonthlyEventOverview"
-import { SelectedDatePanel } from "@/components/calendar/SelectedDatePanel"
 import { EventDetailDialog } from "@/components/events/EventDetailDialog"
 import { EventDialog } from "@/components/events/EventDialog"
 import { PageHeader } from "@/components/layout/PageHeader"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useCalendarData } from "@/hooks/useCalendarData"
 import { useCurrentDate } from "@/hooks/useCurrentDate"
-import {
-  getDDLsForDate,
-  groupDDLsByDate,
-} from "@/lib/ddl"
+import { groupDDLsByDate } from "@/lib/ddl"
 import { getDateInMonthClamped } from "@/lib/date"
-import { getEventsForDate, groupEventsByDate } from "@/lib/events"
+import { groupEventsByDate } from "@/lib/events"
 import type { CreateEventInput, Event } from "@/types/event"
 
 type EditorState =
@@ -81,8 +77,6 @@ export function CalendarPage() {
     () => groupDDLsByDate(filteredDDLs),
     [filteredDDLs]
   )
-  const selectedDateEvents = getEventsForDate(eventsByDate, selectedDate)
-  const selectedDateDDLs = getDDLsForDate(ddlsByDate, selectedDate)
   const detailEvent =
     (detailEventId
       ? events.find((event) => event.id === detailEventId)
@@ -92,23 +86,6 @@ export function CalendarPage() {
     const normalizedDate = startOfDay(date)
     setSelectedDate(normalizedDate)
     setVisibleMonth(startOfMonth(normalizedDate))
-
-    if (window.matchMedia("(max-width: 767px)").matches) {
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          document
-            .getElementById("selected-date-details")
-            ?.scrollIntoView({
-              behavior: window.matchMedia(
-                "(prefers-reduced-motion: reduce)"
-              ).matches
-                ? "auto"
-                : "smooth",
-              block: "start",
-            })
-        })
-      })
-    }
   }, [])
 
   const moveMonth = useCallback(
@@ -236,18 +213,6 @@ export function CalendarPage() {
             month={visibleMonth}
             onSelectEvent={openEventDetail}
           />
-          <div className="xl:hidden">
-            <SelectedDatePanel
-              canAddEvent={canCreateEvent}
-              categoryById={categoryById}
-              ddls={selectedDateDDLs}
-              events={selectedDateEvents}
-              selectedDate={selectedDate}
-              today={today}
-              onQuickAdd={openCreateDialog}
-              onSelectEvent={openEventDetail}
-            />
-          </div>
           <MonthlyDDLSummary
             categoryById={categoryById}
             ddls={filteredDDLs}

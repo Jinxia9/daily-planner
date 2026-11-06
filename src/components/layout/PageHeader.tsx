@@ -44,13 +44,13 @@ export function PageHeader({
             meta ? "w-48 items-stretch lg:w-56" : "items-end"
           )}
         >
-          {meta && <div className="block">{meta}</div>}
+          {meta && <div className="block min-w-0">{meta}</div>}
           {actions && (
             <div
               data-page-header-actions
               className={cn(
                 "flex flex-wrap items-center justify-end gap-1.5 sm:gap-2",
-                meta && "lg:justify-between"
+                meta && "justify-between"
               )}
             >
               {actions}
